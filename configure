@@ -1,0 +1,267 @@
+#!/bin/bash
+
+#----------------------------------------------------------------------------------------------
+#  configure script for VapourSynth plugins
+#----------------------------------------------------------------------------------------------
+
+# -- help -------------------------------------------------------------------------------------
+if test x"$1" = x"-h" -o x"$1" = x"--help" ; then
+cat << EOF
+Usage: [PKG_CONFIG_PATH=/foo/bar/lib/pkgconfig] ./configure [options]
+options:
+  -h, --help               print help (this)
+
+  --prefix=PREFIX          set dir for headers and libs [NONE]
+  --libdir=DIR             set dir for libs    [NONE]
+  --includedir=DIR         set dir for headers [NONE]
+
+  --extra-cxxflags=XCXXFLAGS   add XCXXFLAGS to CXXFLAGS
+  --extra-ldflags=XLDFLAGS add XLDFLAGS to LDFLAGS
+  --extra-libs=XLIBS       add XLIBS to LIBS
+
+  --target-os=TARGET_OS    select target operating system
+  --cross-prefix=PREFIX    use PREFIX for compilation tools
+  --sysroot=SYSROOT        root of cross-build tree
+
+EOF
+exit 1
+fi
+
+#-- func --------------------------------------------------------------------------------------
+error_exit()
+{
+    echo error: $1
+    exit 1
+}
+
+log_echo()
+{
+    echo $1
+    echo >> config.log
+    echo --------------------------------- >> config.log
+    echo $1 >> config.log
+}
+
+cc_check()
+{
+    rm -f conftest.c
+    if [ -n "$3" ]; then
+        echo "#include <$3>" >> config.log
+        echo "#include <$3>" > conftest.c
+    fi
+    echo "int main(void){$4 return 0;}" >> config.log
+    echo "int main(void){$4 return 0;}" >> conftest.c
+    echo $CXX conftest.c -o conftest $1 $2 >> config.log
+    $CXX conftest.c -o conftest $1 $2 2>> config.log
+    ret=$?
+    echo $ret >> config.log
+    rm -f conftest*
+    return $ret
+}
+#----------------------------------------------------------------------------------------------
+rm -f config.* .depend
+
+SRCDIR="$(cd $(dirname $0); pwd)"
+test "$SRCDIR" = "$(pwd)" && SRCDIR=.
+test -n "$(echo $SRCDIR | grep ' ')" && \
+    error_exit "out-of-tree builds are impossible with whitespace in source path"
+
+# -- output config.h --------------------------------------------------------------------------
+pushd $SRCDIR
+REV="$(git rev-list HEAD 2> /dev/null | wc -l | sed 's/ //g')"
+HASH="$(git describe --always 2> /dev/null)"
+popd
+cat >> config.h << EOF
+#define VSFFT3DFILTER_REV "$REV"
+#define VSFFT3DFILTER_GIT_HASH "$HASH"
+EOF
+
+# -- init -------------------------------------------------------------------------------------
+CXX="g++"
+LD="g++"
+STRIP="strip"
+
+prefix=""
+includedir=""
+libdir=""
+
+CXXFLAGS="-Wall -std=c++11 -I. -I$SRCDIR"
+LDFLAGS="-L."
+DEPLIBS=""
+
+SRC_SOURCE="fft3dfilter_c.cpp FFT3DFilter.cpp Plugin.cpp"
+
+# -- options ----------------------------------------------------------------------------------
+echo all command lines: > config.log
+echo "$*" >> config.log
+
+for opt; do
+    optarg="${opt#*=}"
+    case "$opt" in
+        --prefix=*)
+            prefix="$optarg"
+            ;;
+        --libdir=*)
+            libdir="$optarg"
+            ;;
+        --includedir=*)
+            includedir="$optarg"
+            ;;
+        --extra-cxxflags=*)
+            XCXXFLAGS="$optarg"
+            ;;
+        --extra-ldflags=*)
+            XLDFLAGS="$optarg"
+            ;;
+        --extra-libs=*)
+            XLIBS="$optarg"
+            ;;
+        --target-os=*)
+            TARGET_OS="$optarg"
+            ;;
+        --cross-prefix=*)
+            CROSS="$optarg"
+            ;;
+        --sysroot=*)
+            CXXFLAGS="$CXXFLAGS --sysroot=$optarg"
+            LDFLAGS="$LDFLAGS --sysroot=$optarg"
+            ;;
+        *)
+            error_exit "unknown option $opt"
+            ;;
+    esac
+done
+
+BASENAME="vsfft3dfilter"
+
+if test -n "$TARGET_OS"; then
+    TARGET_OS=$(echo $TARGET_OS | tr '[A-Z]' '[a-z]')
+else
+    TARGET_OS=$($CXX -dumpmachine | tr '[A-Z]' '[a-z]')
+fi
+case "$TARGET_OS" in
+    *mingw*|*cygwin*)
+        SYS="WIN32"
+        SOSUFFIX="dll"
+        SONAME="$BASENAME.$SOSUFFIX"
+        SOFLAGS="-Wl,--enable-auto-image-base -Wl,--export-all-symbols"
+        ;;
+    *darwin*)
+        SYS="MACOSX"
+        SOSUFFIX="dylib"
+        SONAME="$BASENAME.$REV.$SOSUFFIX"
+        SONAME_LN="$BASENAME.$SOSUFFIX"
+        SOFLAGS="-dynamiclib -Wl,-single_module -Wl,-read_only_relocs,suppress -install_name $(DESTDIR)$(libdir)/$(SONAME)"
+        ;;
+    *)
+        SOSUFFIX="so"
+        SONAME="$BASENAME.$SOSUFFIX.$REV"
+        SONAME_LN="$BASENAME.$SOSUFFIX"
+        SOFLAGS="-Wl,-soname,$SONAME"
+        CXXFLAGS="$CXXFLAGS -fPIC"
+        LDFLAGS="-fPIC $LDFLAGS"
+        ;;
+esac
+
+# -- add extra --------------------------------------------------------------------------------
+if test -n "$prefix"; then
+    CXXFLAGS="$CXXFLAGS -I$prefix/include"
+    LDFLAGS="$LDFLAGS -L$prefix/lib"
+fi
+test -n "$includedir" && CXXFLAGS="$CXXFLAGS -I$includedir"
+test -n "$libdir" && LDFLAGS="$LDFLAGS -L$libdir"
+
+CXXFLAGS="$CXXFLAGS $XCXXFLAGS"
+LDFLAGS="$LDFLAGS $XLDFLAGS"
+
+# -- check_exe --------------------------------------------------------------------------------
+CXX="${CROSS}${CXX}"
+LD="${CROSS}${LD}"
+STRIP="${CROSS}${STRIP}"
+for f in "$CXX" "$LD" "$STRIP"; do
+    test -n "$(which $f 2> /dev/null)" || error_exit "$f is not executable"
+done
+
+# -- check & set cxxflags and ldflags  ----------------------------------------------------------
+log_echo "CXXFLAGS/LDFLAGS checking..."
+if ! cc_check "$CXXFLAGS" "$LDFLAGS"; then
+    error_exit "invalid CXXFLAGS/LDFLAGS"
+fi
+if cc_check "-Os -ffast-math $CXXFLAGS" "$LDFLAGS"; then
+    CXXFLAGS="-Os -ffast-math $CXXFLAGS"
+fi
+if cc_check "$CXXFLAGS -fexcess-precision=fast" "$LDFLAGS"; then
+    CXXFLAGS="$CXXFLAGS -fexcess-precision=fast"
+fi
+
+# -- check pkg-config ----------------------------------------------------------------
+PKGCONFIGEXE="pkg-config"
+test -n "$(which ${CROSS}${PKGCONFIGEXE} 2> /dev/null)" && \
+    PKGCONFIGEXE=${CROSS}${PKGCONFIGEXE}
+
+if $PKGCONFIGEXE --exists $DEPLIBS 2> /dev/null; then
+    LIBS="$($PKGCONFIGEXE --libs $DEPLIBS)"
+    CXXFLAGS="$CXXFLAGS $($PKGCONFIGEXE --cflags $DEPLIBS)"
+else
+    for lib in $DEPLIBS; do
+        LIBS="$LIBS -l${lib#lib}"
+    done
+    log_echo "warning: pkg-config or pc files not found, lib detection may be inaccurate."
+fi
+
+# -- LDFLAGS settings --------------------------------------------------------------------------
+if [ "$SYS" = WIN32 ]; then
+    LDFLAGS="$LDFLAGS -shared -Wl,--dll,--add-stdcall-alias"
+    LIBS="-lwinmm $LIBS $XLIBS"
+else
+    LDFLAGS="$LDFLAGS -shared"
+    LIBS="$LIBS $XLIBS"
+fi
+
+# -- output config.mak ------------------------------------------------------------------------
+rm -f config.mak
+cat >> config.mak << EOF
+CXX = $CXX
+LD = $LD
+STRIP = $STRIP
+CXXFLAGS = $CXXFLAGS
+LDFLAGS = $LDFLAGS
+LIBS = $LIBS
+SRCDIR = $SRCDIR
+SRC_SOURCE = $SRC_SOURCE
+BASENAME=$BASENAME
+SONAME=$SONAME
+SONAME_LN=$SONAME_LN
+SOSUFFIX=$SOSUFFIX
+SOFLAGS=$SOFLAGS
+EOF
+
+cat >> config.log << EOF
+---------------------------------
+    setting
+---------------------------------
+EOF
+cat config.mak >> config.log
+
+cat << EOF
+
+settings...
+CXX         = $CXX
+LD          = $LD
+STRIP       = $STRIP
+CXXFLAGS    = $CXXFLAGS
+LDFLAGS     = $LDFLAGS
+LIBS        = $LIBS
+SONAME      = $SONAME
+SOFLAGS     = $SOFLAGS
+EOF
+
+test "$SRCDIR" = "." || cp -f $SRCDIR/GNUmakefile .
+
+# ---------------------------------------------------------------------------------------------
+
+cat << EOF
+
+configure finished.
+type 'make' : compile $SONAME
+EOF
