@@ -29,10 +29,13 @@
 
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener2D_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
-                   int howmanyblocks, float sigmaSquaredNoiseNormed, float beta,
-                   float sharpen, float sigmaSquaredSharpenMin,
-                   float sigmaSquaredSharpenMax, float *wsharpen, float dehalo, float *wdehalo, float ht2n)
+void ApplyWiener2D_C
+(
+    fftwf_complex *outcur, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta,
+    float sharpen, float sigmaSquaredSharpenMin,
+    float sigmaSquaredSharpenMax, const float *wsharpen, float dehalo, const float *wdehalo, float ht2n
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     float lowlimit = (beta-1)/beta; //     (beta-1)/beta>=0
@@ -125,12 +128,12 @@ void ApplyWiener2D_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
 }
 //-------------------------------------------------------------------------------------------
 //
-void ApplyPattern2D_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float pfactor, float *pattern2d0, float beta)
+void ApplyPattern2D_C( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float pfactor, const float *pattern2d0, float beta )
 {
     int h,w, block;
     float psd;
     float patternfactor;
-    float *pattern2d;
+    const float *pattern2d;
     float lowlimit = (beta-1)/beta; //     (beta-1)/beta>=0
 
     if (pfactor != 0)
@@ -157,9 +160,12 @@ void ApplyPattern2D_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
 //
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener3D2_C(fftwf_complex *outcur, fftwf_complex *outprev,
-                    int outwidth, int outpitch, int bh, int howmanyblocks,
-                    float sigmaSquaredNoiseNormed,     float beta)
+void ApplyWiener3D2_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev,
+    int outwidth, int outpitch, int bh, int howmanyblocks,
+    float sigmaSquaredNoiseNormed, float beta
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     // return result in outprev
@@ -202,9 +208,12 @@ void ApplyWiener3D2_C(fftwf_complex *outcur, fftwf_complex *outprev,
 //
 //-----------------------------------------------------------------------------------------
 //
-void ApplyPattern3D2_C(fftwf_complex *outcur, fftwf_complex *outprev,
-                     int outwidth, int outpitch, int bh,
-                     int howmanyblocks, float *pattern3d, float beta)
+void ApplyPattern3D2_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev,
+    int outwidth, int outpitch, int bh,
+    int howmanyblocks, float *pattern3d, float beta
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     // return result in outprev
@@ -249,9 +258,12 @@ void ApplyPattern3D2_C(fftwf_complex *outcur, fftwf_complex *outprev,
 //
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener3D3_C(fftwf_complex *outcur, fftwf_complex *outprev, fftwf_complex *outnext,
-                    int outwidth, int outpitch, int bh, int howmanyblocks,
-                    float sigmaSquaredNoiseNormed, float beta)
+void ApplyWiener3D3_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev, const fftwf_complex *outnext,
+    int outwidth, int outpitch, int bh, int howmanyblocks,
+    float sigmaSquaredNoiseNormed, float beta
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     // return result in outprev
@@ -308,9 +320,12 @@ void ApplyWiener3D3_C(fftwf_complex *outcur, fftwf_complex *outprev, fftwf_compl
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyPattern3D3_C(fftwf_complex *outcur, fftwf_complex *outprev, fftwf_complex *outnext,
-                     int outwidth, int outpitch, int bh, int howmanyblocks,
-                     float *pattern3d, float beta)
+void ApplyPattern3D3_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev, const fftwf_complex *outnext,
+    int outwidth, int outpitch, int bh, int howmanyblocks,
+    const float *pattern3d, float beta
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     // return result in outprev
@@ -369,9 +384,12 @@ void ApplyPattern3D3_C(fftwf_complex *outcur, fftwf_complex *outprev, fftwf_comp
 
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener3D4_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_complex *outprev,
-                    fftwf_complex *outnext, int outwidth, int outpitch, int bh,
-                    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta)
+void ApplyWiener3D4_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev2, const fftwf_complex *outprev,
+    const fftwf_complex *outnext, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta
+)
 {
     // dft with 4 points
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
@@ -434,9 +452,12 @@ void ApplyWiener3D4_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_comp
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyPattern3D4_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_complex *outprev,
-                     fftwf_complex *outnext, int outwidth, int outpitch, int bh,
-                     int howmanyblocks, float* pattern3d, float beta)
+void ApplyPattern3D4_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev2, const fftwf_complex *outprev,
+    const fftwf_complex *outnext, int outwidth, int outpitch, int bh,
+    int howmanyblocks, const float *pattern3d, float beta
+)
 {
     // dft with 4 points
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
@@ -502,10 +523,13 @@ void ApplyPattern3D4_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_com
 //
 //-----------------------------------------------------------------------------------------
 //
-void ApplyKalmanPattern_C( fftwf_complex *outcur, fftwf_complex *outLast,
-                        fftwf_complex *covar, fftwf_complex *covarProcess,
-                        int outwidth, int outpitch, int bh, int howmanyblocks,
-                        float *covarNoiseNormed, float kratio2)
+void ApplyKalmanPattern_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outLast,
+    fftwf_complex *covar, fftwf_complex *covarProcess,
+    int outwidth, int outpitch, int bh, int howmanyblocks,
+    const float *covarNoiseNormed, float kratio2
+)
 {
 // return result in outLast
     float GainRe, GainIm;  // Kalman Gain
@@ -522,7 +546,7 @@ void ApplyKalmanPattern_C( fftwf_complex *outcur, fftwf_complex *outLast,
             {
                 // use one of possible method for motion detection:
                 if ( (outcur[w][0]-outLast[w][0])*(outcur[w][0]-outLast[w][0]) > covarNoiseNormed[w]*kratio2 ||
-                      (outcur[w][1]-outLast[w][1])*(outcur[w][1]-outLast[w][1]) > covarNoiseNormed[w]*kratio2 )
+                     (outcur[w][1]-outLast[w][1])*(outcur[w][1]-outLast[w][1]) > covarNoiseNormed[w]*kratio2 )
                 {
                     // big pixel variation due to motion etc
                     // reset filter
@@ -565,9 +589,12 @@ void ApplyKalmanPattern_C( fftwf_complex *outcur, fftwf_complex *outLast,
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyKalman_C( fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex *covar,
-                 fftwf_complex *covarProcess, int outwidth, int outpitch, int bh,
-                 int howmanyblocks,  float covarNoiseNormed, float kratio2)
+void ApplyKalman_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex *covar,
+    fftwf_complex *covarProcess, int outwidth, int outpitch, int bh,
+    int howmanyblocks,  float covarNoiseNormed, float kratio2
+)
 {
 // return result in outLast
     float GainRe, GainIm;  // Kalman Gain
@@ -586,7 +613,7 @@ void ApplyKalman_C( fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex
             {
                 // use one of possible method for motion detection:
                 if ( (outcur[w][0]-outLast[w][0])*(outcur[w][0]-outLast[w][0]) > sigmaSquaredMotionNormed ||
-                      (outcur[w][1]-outLast[w][1])*(outcur[w][1]-outLast[w][1]) > sigmaSquaredMotionNormed )
+                     (outcur[w][1]-outLast[w][1])*(outcur[w][1]-outLast[w][1]) > sigmaSquaredMotionNormed )
                 {
                     // big pixel variation due to motion etc
                     // reset filter
@@ -628,9 +655,12 @@ void ApplyKalman_C( fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex
 
 //-------------------------------------------------------------------------------------------
 //
-void Sharpen_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
-             int howmanyblocks, float sharpen, float sigmaSquaredSharpenMin,
-             float sigmaSquaredSharpenMax, float *wsharpen, float dehalo, float *wdehalo, float ht2n)
+void Sharpen_C
+(
+    fftwf_complex *outcur, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float sharpen, float sigmaSquaredSharpenMin,
+    float sigmaSquaredSharpenMax, const float *wsharpen, float dehalo, const float *wdehalo, float ht2n
+)
 {
     int h,w, block;
     float psd;
@@ -710,10 +740,13 @@ void Sharpen_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
 //-----------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
 //
-void Sharpen_degrid_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
-             int howmanyblocks, float sharpen, float sigmaSquaredSharpenMin,
-             float sigmaSquaredSharpenMax, float *wsharpen,
-             float degrid, fftwf_complex *gridsample, float dehalo, float *wdehalo, float ht2n)
+void Sharpen_degrid_C
+(
+    fftwf_complex *outcur, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float sharpen, float sigmaSquaredSharpenMin,
+    float sigmaSquaredSharpenMax, const float *wsharpen,
+    float degrid, const fftwf_complex *gridsample, float dehalo, const float *wdehalo, float ht2n
+)
 {
     int h,w, block;
     float psd;
@@ -821,11 +854,14 @@ void Sharpen_degrid_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
 }
 //-----------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------
-void ApplyWiener2D_degrid_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
-                   int howmanyblocks, float sigmaSquaredNoiseNormed, float beta,
-                   float sharpen, float sigmaSquaredSharpenMin,
-                   float sigmaSquaredSharpenMax, float *wsharpen,
-                   float degrid, fftwf_complex *gridsample, float dehalo, float *wdehalo, float ht2n)
+void ApplyWiener2D_degrid_C
+(
+    fftwf_complex *outcur, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta,
+    float sharpen, float sigmaSquaredSharpenMin,
+    float sigmaSquaredSharpenMax, const float *wsharpen,
+    float degrid, const fftwf_complex *gridsample, float dehalo, const float *wdehalo, float ht2n
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     float lowlimit = (beta-1)/beta; //     (beta-1)/beta>=0
@@ -964,10 +1000,13 @@ void ApplyWiener2D_degrid_C(fftwf_complex *outcur, int outwidth, int outpitch, i
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener3D2_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev,
-                    int outwidth, int outpitch, int bh, int howmanyblocks,
-                    float sigmaSquaredNoiseNormed,     float beta,
-                    float degrid, fftwf_complex *gridsample)
+void ApplyWiener3D2_degrid_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev,
+    int outwidth, int outpitch, int bh, int howmanyblocks,
+    float sigmaSquaredNoiseNormed, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     // return result in outprev
@@ -1015,10 +1054,13 @@ void ApplyWiener3D2_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev,
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener3D3_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev, fftwf_complex *outnext,
-                    int outwidth, int outpitch, int bh, int howmanyblocks,
-                    float sigmaSquaredNoiseNormed, float beta,
-                    float degrid, fftwf_complex *gridsample)
+void ApplyWiener3D3_degrid_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev, const fftwf_complex *outnext,
+    int outwidth, int outpitch, int bh, int howmanyblocks,
+    float sigmaSquaredNoiseNormed, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     // return result in outprev
@@ -1080,10 +1122,13 @@ void ApplyWiener3D3_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev, fftw
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener3D4_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_complex *outprev,
-                    fftwf_complex *outnext, int outwidth, int outpitch, int bh,
-                    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta,
-                    float degrid, fftwf_complex *gridsample)
+void ApplyWiener3D4_degrid_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev2, const fftwf_complex *outprev,
+    const fftwf_complex *outnext, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     // dft with 4 points
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
@@ -1153,14 +1198,17 @@ void ApplyWiener3D4_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev2, fft
 }
 //-------------------------------------------------------------------------------------------
 //
-void ApplyPattern2D_degrid_C(fftwf_complex *outcur, int outwidth, int outpitch, int bh,
-                             int howmanyblocks, float pfactor, float *pattern2d0, float beta,
-                             float degrid, fftwf_complex *gridsample)
+void ApplyPattern2D_degrid_C
+(
+    fftwf_complex *outcur, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float pfactor, const float *pattern2d0, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     int h,w, block;
     float psd;
     float WienerFactor;
-    float *pattern2d;
+    const float *pattern2d;
     float lowlimit = (beta-1)/beta; //     (beta-1)/beta>=0
 
     if (pfactor != 0)
@@ -1196,10 +1244,13 @@ void ApplyPattern2D_degrid_C(fftwf_complex *outcur, int outwidth, int outpitch, 
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyPattern3D2_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev,
-                     int outwidth, int outpitch, int bh,
-                     int howmanyblocks, float *pattern3d, float beta,
-                     float degrid, fftwf_complex *gridsample)
+void ApplyPattern3D2_degrid_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev,
+    int outwidth, int outpitch, int bh,
+    int howmanyblocks, const float *pattern3d, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     // return result in outprev
@@ -1249,10 +1300,13 @@ void ApplyPattern3D2_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev,
 //
 //-----------------------------------------------------------------------------------------
 //
-void ApplyPattern3D3_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev, fftwf_complex *outnext,
-                     int outwidth, int outpitch, int bh, int howmanyblocks,
-                     float *pattern3d, float beta,
-                     float degrid, fftwf_complex *gridsample)
+void ApplyPattern3D3_degrid_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev, const fftwf_complex *outnext,
+    int outwidth, int outpitch, int bh, int howmanyblocks,
+    const float *pattern3d, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
     // return result in outprev
@@ -1317,10 +1371,13 @@ void ApplyPattern3D3_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev, fft
 
 //-----------------------------------------------------------------------------------------
 //
-void ApplyPattern3D4_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_complex *outprev,
-                     fftwf_complex *outnext, int outwidth, int outpitch, int bh,
-                     int howmanyblocks, float* pattern3d, float beta,
-                     float degrid, fftwf_complex *gridsample)
+void ApplyPattern3D4_degrid_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev2, const fftwf_complex *outprev,
+    const fftwf_complex *outnext, int outwidth, int outpitch, int bh,
+    int howmanyblocks, const float *pattern3d, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     // dft with 4 points
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler
@@ -1392,10 +1449,13 @@ void ApplyPattern3D4_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev2, ff
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyPattern3D5_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_complex *outprev,
-                    fftwf_complex *outnext, fftwf_complex *outnext2, int outwidth, int outpitch, int bh,
-                    int howmanyblocks, float *pattern3d, float beta,
-                    float degrid, fftwf_complex *gridsample)
+void ApplyPattern3D5_degrid_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev2, const fftwf_complex *outprev,
+    const fftwf_complex *outnext, const fftwf_complex *outnext2, int outwidth, int outpitch, int bh,
+    int howmanyblocks, const float *pattern3d, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     // dft with 5 points
     // return result in outprev2
@@ -1487,10 +1547,13 @@ void ApplyPattern3D5_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev2, ff
 
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener3D5_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_complex *outprev,
-                    fftwf_complex *outnext, fftwf_complex *outnext2, int outwidth, int outpitch, int bh,
-                    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta,
-                    float degrid, fftwf_complex *gridsample)
+void ApplyWiener3D5_degrid_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev2, const fftwf_complex *outprev,
+    const fftwf_complex *outnext, const fftwf_complex *outnext2, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta,
+    float degrid, const fftwf_complex *gridsample
+)
 {
     // dft with 5 points
     // return result in outprev2
@@ -1595,9 +1658,12 @@ void ApplyWiener3D5_degrid_C(fftwf_complex *outcur, fftwf_complex *outprev2, fft
 }
 //-----------------------------------------------------------------------------------------
 //
-void ApplyPattern3D5_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_complex *outprev,
-                    fftwf_complex *outnext, fftwf_complex *outnext2, int outwidth, int outpitch, int bh,
-                    int howmanyblocks, float *pattern3d, float beta)
+void ApplyPattern3D5_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev2, const fftwf_complex *outprev,
+    const fftwf_complex *outnext, const fftwf_complex *outnext2, int outwidth, int outpitch, int bh,
+    int howmanyblocks, const float *pattern3d, float beta
+)
 {
     // dft with 5 points
     // return result in outprev2
@@ -1682,9 +1748,12 @@ void ApplyPattern3D5_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_com
 
 //-----------------------------------------------------------------------------------------
 //
-void ApplyWiener3D5_C(fftwf_complex *outcur, fftwf_complex *outprev2, fftwf_complex *outprev,
-                    fftwf_complex *outnext, fftwf_complex *outnext2, int outwidth, int outpitch, int bh,
-                    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta)
+void ApplyWiener3D5_C
+(
+    const fftwf_complex *outcur, fftwf_complex *outprev2, const fftwf_complex *outprev,
+    const fftwf_complex *outnext, const fftwf_complex *outnext2, int outwidth, int outpitch, int bh,
+    int howmanyblocks, float sigmaSquaredNoiseNormed, float beta
+)
 {
     // dft with 5 points
     // return result in outprev2
