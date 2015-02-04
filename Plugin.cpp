@@ -209,31 +209,29 @@ static void VS_CC createFFT3DFilter
     catch( std::bad_alloc & )
     {
         vsapi->setError( out, "FFT3DFilter:  create failure (FFT3DFilter)!" );
-        return;
+    }
+    catch( FFT3DFilterMulti::bad_param &e )
+    {
+        vsapi->setError( out, ("FFT3DFilter:  " + std::string(e.what())).c_str() );
     }
     catch( FFT3DFilter::bad_param &e )
     {
         vsapi->setError( out, ("FFT3DFilter:  " + std::string(e.what())).c_str() );
-        return;
     }
     catch( FFT3DFilter::bad_open &e )
     {
         vsapi->setError( out, ("FFT3DFilter:  " + std::string(e.what())).c_str() );
-        return;
     }
     catch( FFT3DFilter::bad_alloc &e )
     {
         vsapi->setError( out, ("FFT3DFilter:  allocation failure (" + std::string(e.what()) + ")").c_str() );
-        return;
     }
     catch( FFT3DFilter::bad_plan &e )
     {
         vsapi->setError( out, ("FFT3DFilter:  FFTW3 plan failure (" + std::string(e.what()) + ")").c_str() );
-        return;
     }
     catch( ... )
     {
-        return;
     }
 }
 

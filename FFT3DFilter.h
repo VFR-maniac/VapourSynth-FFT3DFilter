@@ -183,7 +183,6 @@ public:
     VSVideoInfo vi;
     VSNodeRef  *node;
     using bad_param = class bad_param : public CustomException { using CustomException::CustomException; };
-    using bad_alloc = class bad_alloc : public CustomException { using CustomException::CustomException; };
 
     void RequestFrame( int n, VSFrameContext *frame_ctx, VSCore *core, const VSAPI *vsapi );
     VSFrameRef *GetFrame( int n, VSFrameContext *frame_ctx, VSCore *core, const VSAPI *vsapi );
