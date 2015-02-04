@@ -9,19 +9,19 @@ if test x"$1" = x"-h" -o x"$1" = x"--help" ; then
 cat << EOF
 Usage: [PKG_CONFIG_PATH=/foo/bar/lib/pkgconfig] ./configure [options]
 options:
-  -h, --help               print help (this)
+  -h, --help                 print help (this)
 
-  --prefix=PREFIX          set dir for headers and libs [NONE]
-  --libdir=DIR             set dir for libs    [NONE]
-  --includedir=DIR         set dir for headers [NONE]
+  --prefix=PREFIX            set dir for headers and libs [NONE]
+  --libdir=DIR               set dir for libs    [NONE]
+  --includedir=DIR           set dir for headers [NONE]
 
-  --extra-cxxflags=XCXXFLAGS   add XCXXFLAGS to CXXFLAGS
-  --extra-ldflags=XLDFLAGS add XLDFLAGS to LDFLAGS
-  --extra-libs=XLIBS       add XLIBS to LIBS
+  --extra-cxxflags=XCXXFLAGS add XCXXFLAGS to CXXFLAGS
+  --extra-ldflags=XLDFLAGS   add XLDFLAGS to LDFLAGS
+  --extra-libs=XLIBS         add XLIBS to LIBS
 
-  --target-os=TARGET_OS    select target operating system
-  --cross-prefix=PREFIX    use PREFIX for compilation tools
-  --sysroot=SYSROOT        root of cross-build tree
+  --target-os=TARGET_OS      select target operating system
+  --cross-prefix=PREFIX      use PREFIX for compilation tools
+  --sysroot=SYSROOT          root of cross-build tree
 
 EOF
 exit 1
