@@ -1731,7 +1731,8 @@ FFT3DFilterMulti::FFT3DFilterMulti
     float _sigma2, float _sigma3, float _sigma4, float _degrid,
     float _dehalo, float _hr, float _ht, int _ncpu,
     const VSMap *in, const VSAPI *vsapi
-) : filtered( nullptr ), YClip( nullptr ), UClip( nullptr ), VClip( nullptr )
+) : filtered( nullptr ), YClip( nullptr ), UClip( nullptr ), VClip( nullptr ),
+    bt( _bt ), pframe( _pframe ), pshow( _pshow ), pfactor( _pfactor )
 {
     node =  vsapi->propGetNode( in, "clip", 0, 0 );
     vi   = *vsapi->getVideoInfo( node );
@@ -1739,7 +1740,6 @@ FFT3DFilterMulti::FFT3DFilterMulti
     if( vi.format->colorFamily == cmGray )
         _multiplane = 0;
     multiplane = _multiplane;
-    bt         = _bt;
 
     if( _multiplane == 0 || _multiplane == 1 || _multiplane == 2 )
     {
@@ -1749,6 +1749,7 @@ FFT3DFilterMulti::FFT3DFilterMulti
                                     _pframe, _px, _py, _pshow, _pcutoff, _pfactor,
                                     _sigma2, _sigma3, _sigma4, _degrid, _dehalo, _hr, _ht, _ncpu, _multiplane,
                                     vi, node );
+        isPatternSet = filtered->getIsPatternSet();
     }
     else if( _multiplane == 3 || _multiplane == 4 )
     {
@@ -1776,6 +1777,7 @@ FFT3DFilterMulti::FFT3DFilterMulti
                                      _sigma2, _sigma3, _sigma4, _degrid, _dehalo, _hr, _ht, _ncpu, _multiplane,
                                      vi, node );
         }
+        isPatternSet = UClip->getIsPatternSet();
     }
     else
         throw bad_param{ "plane must be from 0 to 4!" };
@@ -1797,6 +1799,9 @@ void FFT3DFilterMulti::RequestFrame
     const VSAPI    *vsapi
 )
 {
+    if( pfactor != 0 && isPatternSet == false && pshow == false )
+        vsapi->requestFrameFilter( pframe, node, frame_ctx );
+
     int btcur = bt; /* bt used for current frame */
 
     if( (bt / 2 > n) || (bt - 1) / 2 > (vi.numFrames - 1 - n) )
@@ -1843,7 +1848,10 @@ VSFrameRef *FFT3DFilterMulti::GetFrame
 {
     VSFrameRef *dst;
     if( multiplane < 3 )
+    {
         dst = filtered->GetFrame( n, frame_ctx, core, vsapi );
+        isPatternSet = filtered->getIsPatternSet();
+    }
     else
     {
         dst = newVideoFrame( n, frame_ctx, core, vsapi );
@@ -1856,6 +1864,7 @@ VSFrameRef *FFT3DFilterMulti::GetFrame
                 vsapi->getStride( fU, 1 ), vsapi->getFrameWidth( fU, 1 ), vsapi->getFrameHeight( fU, 1 ) );
         BitBlt( vsapi->getWritePtr( dst, 2 ), vsapi->getStride( dst, 2 ), vsapi->getReadPtr( fV, 2 ),
                 vsapi->getStride( fV, 2 ), vsapi->getFrameWidth( fV, 2 ), vsapi->getFrameHeight( fV, 2 ) );
+        isPatternSet = UClip->getIsPatternSet();
         vsapi->freeFrame( fY );
         vsapi->freeFrame( fU );
         vsapi->freeFrame( fV );

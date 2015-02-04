@@ -156,6 +156,8 @@ public:
 
     VSFrameRef *GetFrame( int n, VSFrameContext *frame_ctx, VSCore *core, const VSAPI *vsapi );
 
+    inline bool getIsPatternSet() { return isPatternSet; }
+
     /* Constructor */
     FFT3DFilter
     (
@@ -176,8 +178,12 @@ class FFT3DFilterMulti
 {
     FFT3DFilter *filtered;
     FFT3DFilter *YClip, *UClip, *VClip;
-    int multiplane;
-    int bt;
+    int   multiplane;
+    int   bt;       /* block size  along time (mumber of frames), =0 for Kalman, >0 for Wiener */
+    int   pframe;   /* noise pattern frame number */
+    bool  pshow;    /* show noise pattern */
+    float pfactor;  /* noise pattern denoise strength */
+    bool  isPatternSet;
 
     VSFrameRef *newVideoFrame( int n, VSFrameContext *frame_ctx, VSCore *core, const VSAPI *vsapi );
 

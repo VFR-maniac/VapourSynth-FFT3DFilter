@@ -27,7 +27,7 @@
 
 #include <cstddef>
 
-uint16_t font[][20] =
+constexpr uint16_t font[][20] =
 {
     //STARTCHAR space
     {
