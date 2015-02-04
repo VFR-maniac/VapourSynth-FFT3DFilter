@@ -1433,30 +1433,20 @@ void FFT3DFilter::Wiener3D
 
     fftwf_complex **out = &outcache[btcur / 2];
 
-    /* cur frame */
-    out[0] = cachefft[cachecur];
-    if( cachewhat[cachecur] != n )
-    {
-        FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-        FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-        /* make FFT 2D */
-        fftwf_execute_dft_r2c( plan, in, out[0] );
-        cachewhat[cachecur] = n;
-    }
-
     for( int offset = - btcur / 2; offset <= (btcur - 1) / 2; ++offset )
     {
-        if( offset == 0 )
-            continue;   /* skip cur frame */
-
         out[offset] = cachefft[cachecur + offset];
         if( cachewhat[cachecur + offset] != n + offset )
         {
             /* calculate out[offset] */
-            const VSFrameRef *frame = vsapi->getFrameFilter( n + offset, node, frame_ctx );
-            FramePlaneToCoverbuf( plane, frame, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-            vsapi->freeFrame( frame );
-
+            if( offset != 0 )
+            {
+                const VSFrameRef *frame = vsapi->getFrameFilter( n + offset, node, frame_ctx );
+                FramePlaneToCoverbuf( plane, frame, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
+                vsapi->freeFrame( frame );
+            }
+            else
+                FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
             FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
             /* make FFT 2D */
             fftwf_execute_dft_r2c( plan, in, out[offset] );
