@@ -76,7 +76,7 @@ private:
 
     /* additional parameterss */
     float *in;
-    fftwf_complex *out, *outprev, *outnext, *outtemp, *outprev2, *outnext2;
+    fftwf_complex *outcache[5], *outtemp;
     fftwf_complex *outrez, *gridsample; /* v1.8 */
     fftwf_plan plan, planinv, plan1;
     int nox, noy;
@@ -143,6 +143,8 @@ private:
     void DecodeOverlapPlane( const float *in, float norm, uint8_t *dstp, int dst_pitch, int planeBase );
 
     VSFrameRef *newVideoFrame( const VSFrameRef *src, VSCore *core, const VSAPI *vsapi );
+
+    template < int btcur > void Wiener3D( int n, const VSFrameRef *src, VSFrameContext *frame_ctx, const VSAPI *vsapi );
 
 public:
     VSVideoInfo vi;

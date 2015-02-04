@@ -212,7 +212,7 @@ void ApplyPattern3D2_C
 (
     const fftwf_complex *outcur, fftwf_complex *outprev,
     int outwidth, int outpitch, int bh,
-    int howmanyblocks, float *pattern3d, float beta
+    int howmanyblocks, const float *pattern3d, float beta
 )
 {
     // this function take 25% CPU time and may be easy optimized for AMD Athlon 3DNOW assembler

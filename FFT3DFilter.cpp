@@ -92,7 +92,7 @@
 void ApplyWiener2D_C( fftwf_complex *out, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta, float sharpen, float sigmaSquaredSharpenMin, float sigmaSquaredSharpenMax, const float *wsharpen, float dehalo, const float *wdehalo, float ht2n );
 void ApplyPattern2D_C( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float pfactor, const float *pattern2d0, float beta );
 void ApplyWiener3D2_C( const fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta );
-void ApplyPattern3D2_C( const fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta );
+void ApplyPattern3D2_C( const fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, const float *pattern3d, float beta );
 void ApplyWiener3D3_C( const fftwf_complex *out, fftwf_complex *outprev, const fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta );
 void ApplyPattern3D3_C( const fftwf_complex *out, fftwf_complex *outprev, const fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, const float *pattern3d, float beta );
 void ApplyWiener3D4_C( const fftwf_complex *out, fftwf_complex *outprev2, const fftwf_complex *outprev, const fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta );
@@ -121,59 +121,45 @@ static void ApplyWiener2D( fftwf_complex *out, int outwidth, int outpitch, int b
     ApplyWiener2D_C( out, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, sharpen, sigmaSquaredSharpenMin, sigmaSquaredSharpenMax, wsharpen, dehalo, wdehalo, ht2n );
 }
 //-------------------------------------------------------------------------------------------
-static void ApplyWiener3D2( const fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
-{
-    ApplyWiener3D2_C( outcur, outprev, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
-}
-//-------------------------------------------------------------------------------------------
-static void ApplyPattern3D2( const fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta )
-{
-    ApplyPattern3D2_C( outcur, outprev, outwidth,  outpitch,  bh,  howmanyblocks, pattern3d, beta );
-}
-//-------------------------------------------------------------------------------------------
-static void ApplyWiener3D3( const fftwf_complex *out, fftwf_complex *outprev, const fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
-{
-    ApplyWiener3D3_C( out, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
-}
-//-------------------------------------------------------------------------------------------
-static void ApplyWiener3D3_degrid( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta, float degrid, fftwf_complex *gridsample )
-{
-    ApplyWiener3D3_degrid_C( out, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
-}
-//-------------------------------------------------------------------------------------------
-static void ApplyWiener3D4_degrid( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta, float degrid, fftwf_complex *gridsample )
-{
-    ApplyWiener3D4_degrid_C( out, outprev2, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
-}
-//-------------------------------------------------------------------------------------------
 static void ApplyPattern2D( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float pfactor, const float *pattern2d0, float beta )
 {
     ApplyPattern2D_C( outcur, outwidth, outpitch, bh, howmanyblocks, pfactor, pattern2d0, beta );
 }
 //-------------------------------------------------------------------------------------------
-static void ApplyPattern3D3( const fftwf_complex *out, fftwf_complex *outprev, const fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, const float *pattern3d, float beta )
+template < int btcur >
+static void ApplyWiener3D_degrid( const fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, const fftwf_complex *outnext, const fftwf_complex *outnext2, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta, float degrid, fftwf_complex *gridsample )
 {
-    ApplyPattern3D3_C( out, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
+    if( btcur == 5 ) ApplyWiener3D5_degrid_C( out, outprev2, outprev, outnext, outnext2, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
+    if( btcur == 4 ) ApplyWiener3D4_degrid_C( out, outprev2, outprev, outnext,           outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
+    if( btcur == 3 ) ApplyWiener3D3_degrid_C( out,           outprev, outnext,           outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
+    if( btcur == 2 ) ApplyWiener3D2_degrid_C( out,           outprev,                    outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
 }
 //-------------------------------------------------------------------------------------------
-static void ApplyPattern3D3_degrid( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta, float degrid, fftwf_complex *gridsample )
+template < int btcur >
+static void ApplyPattern3D_degrid( const fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, const fftwf_complex *outnext, const fftwf_complex *outnext2, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta, float degrid, fftwf_complex *gridsample )
 {
-    ApplyPattern3D3_degrid_C( out, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
+    if( btcur == 5 ) ApplyPattern3D5_degrid_C( out, outprev2, outprev, outnext, outnext2, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
+    if( btcur == 4 ) ApplyPattern3D4_degrid_C( out, outprev2, outprev, outnext,           outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
+    if( btcur == 3 ) ApplyPattern3D3_degrid_C( out,           outprev, outnext,           outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
+    if( btcur == 2 ) ApplyPattern3D2_degrid_C( out,           outprev,                    outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
 }
 //-------------------------------------------------------------------------------------------
-static void ApplyPattern3D4_degrid( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta, float degrid, fftwf_complex *gridsample )
+template < int btcur >
+static void ApplyWiener3D( const fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, const fftwf_complex *outnext, const fftwf_complex *outnext2, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
 {
-    ApplyPattern3D4_degrid_C( out, outprev2, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
+    if( btcur == 5 ) ApplyWiener3D5_C( out, outprev2, outprev, outnext, outnext2, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
+    if( btcur == 4 ) ApplyWiener3D4_C( out, outprev2, outprev, outnext,           outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
+    if( btcur == 3 ) ApplyWiener3D3_C( out,           outprev, outnext,           outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
+    if( btcur == 2 ) ApplyWiener3D2_C( out,           outprev,                    outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
 }
 //-------------------------------------------------------------------------------------------
-static void ApplyWiener3D4( const fftwf_complex *out, fftwf_complex *outprev2, const fftwf_complex *outprev, const fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
+template < int btcur >
+static void ApplyPattern3D( const fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, const fftwf_complex *outnext, const fftwf_complex *outnext2, int outwidth, int outpitch, int bh, int howmanyblocks, const float *pattern3d, float beta )
 {
-    ApplyWiener3D4_C( out, outprev2, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
-}
-//-------------------------------------------------------------------------------------------
-static void ApplyPattern3D4( const fftwf_complex *out, fftwf_complex *outprev2, const fftwf_complex *outprev, const fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, const float *pattern3d, float beta )
-{
-    ApplyPattern3D4_C( out, outprev2, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
+    if( btcur == 5 ) ApplyPattern3D5_C( out, outprev2, outprev, outnext, outnext2, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
+    if( btcur == 4 ) ApplyPattern3D4_C( out, outprev2, outprev, outnext,           outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
+    if( btcur == 3 ) ApplyPattern3D3_C( out,           outprev, outnext,           outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
+    if( btcur == 2 ) ApplyPattern3D2_C( out,           outprev,                    outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
 }
 //-------------------------------------------------------------------------------------------
 static void ApplyKalmanPattern( const fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex *covar, fftwf_complex *covarProcess, int outwidth, int outpitch, int bh, int howmanyblocks, const float *covarNoiseNormed, float kratio2 )
@@ -1430,6 +1416,90 @@ VSFrameRef *FFT3DFilter::newVideoFrame
     return dst;
 }
 
+template < int btcur >
+void FFT3DFilter::Wiener3D
+(
+    int               n,
+    const VSFrameRef *src,
+    VSFrameContext   *frame_ctx,
+    const VSAPI      *vsapi
+)
+{
+    /* cycle prev2(-2), prev(-1), cur(0), next(1) and next2(2) */
+    constexpr int cachecur      = btcur / 2 + 1;
+    int           cachestart    = n     - cachecur;
+    int           cachestartold = nlast - cachecur;
+    SortCache( cachewhat, cachefft, cachesize, cachestart, cachestartold );
+
+    fftwf_complex **out = &outcache[btcur / 2];
+
+    /* cur frame */
+    out[0] = cachefft[cachecur];
+    if( cachewhat[cachecur] != n )
+    {
+        FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
+        FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
+        /* make FFT 2D */
+        fftwf_execute_dft_r2c( plan, in, out[0] );
+        cachewhat[cachecur] = n;
+    }
+
+    for( int offset = - btcur / 2; offset <= (btcur - 1) / 2; ++offset )
+    {
+        if( offset == 0 )
+            continue;   /* skip cur frame */
+
+        out[offset] = cachefft[cachecur + offset];
+        if( cachewhat[cachecur + offset] != n + offset )
+        {
+            /* calculate out[offset] */
+            const VSFrameRef *frame = vsapi->getFrameFilter( n + offset, node, frame_ctx );
+            FramePlaneToCoverbuf( plane, frame, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
+            vsapi->freeFrame( frame );
+
+            FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
+            /* make FFT 2D */
+            fftwf_execute_dft_r2c( plan, in, out[offset] );
+            cachewhat[cachecur + offset] = n + offset;
+        }
+        if( offset == - btcur / 2 )
+        {
+            if( n != nlast + 1 )
+            {
+                Copyfft( outrez, out[offset], outsize ); /* save out[offset] to outrez to prevent its change in cache */
+            }
+            else
+            {
+                /* swap */
+                outtemp     = outrez;
+                outrez      = out[offset];
+                out[offset] = outtemp;
+                cachefft [cachecur + offset] = outtemp;
+                cachewhat[cachecur + offset] = -1; /* will be destroyed */
+            }
+        }
+    }
+    if( degrid != 0 )
+    {
+        if( pfactor != 0 )
+            ApplyPattern3D_degrid< btcur >( out[0], outrez, out[-1], out[1], out[2], outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
+        else
+            ApplyWiener3D_degrid< btcur >( out[0], outrez, out[-1], out[1], out[2], outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
+        Sharpen_degrid( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, degrid, gridsample, dehalo, wdehalo, ht2n );
+    }
+    else
+    {
+        if( pfactor != 0 )
+            ApplyPattern3D< btcur >( out[0], outrez, out[-1], out[1], out[2], outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
+        else
+            ApplyWiener3D< btcur >( out[0], outrez, out[-1], out[1], out[2], outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
+        Sharpen( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, dehalo, wdehalo, ht2n );
+    }
+    /* do inverse FFT 2D, get filtered 'in' array
+     * note: input "outrez" array is destroyed by execute algo. */
+    fftwf_execute_dft_c2r( planinv, outrez, in );
+}
+
 VSFrameRef * FFT3DFilter::GetFrame
 (
     int             n,
@@ -1535,8 +1605,6 @@ VSFrameRef * FFT3DFilter::GetFrame
 
     if( btcur > 0 ) /* Wiener */
     {
-        int cachecur, cachestart, cachestartold;
-
         sigmaSquaredNoiseNormed = btcur * sigma * sigma / norm; /* normalized variation=sigma^2 */
 
         if( btcur != btcurlast )
@@ -1578,337 +1646,21 @@ VSFrameRef * FFT3DFilter::GetFrame
             /* do inverse FFT 2D, get filtered 'in' array */
             fftwf_execute_dft_c2r( planinv, outrez, in );
         }
-        else if( btcur == 2 )  /* 3D2 */
+        else if( btcur == 2 ) /* 3D2 */
         {
-            cachecur      = 2;
-            cachestart    = n     - cachecur;
-            cachestartold = nlast - cachecur;
-            SortCache( cachewhat, cachefft, cachesize, cachestart, cachestartold );
-            /* cur frame */
-            out = cachefft[cachecur];
-            if( cachewhat[cachecur] != n )
-            {
-                FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, out );
-                cachewhat[cachecur] = n;
-            }
-            /* prev frame */
-            outprev = cachefft[cachecur - 1];
-            if( cachewhat[cachecur - 1] != n - 1 )
-            {
-                const VSFrameRef *prev = vsapi->getFrameFilter( n - 1, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, prev, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( prev );
-
-                /* calculate prev */
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outprev );
-                cachewhat[cachecur - 1] = n - 1;
-            }
-            if( n != nlast + 1 ) /* (not direct sequential access) */
-            {
-                Copyfft( outrez, outprev, outsize ); /* save outprev to outrez to prevent its change in cache */
-            }
-            else
-            {
-                /* swap */
-                outtemp = outrez;
-                outrez  = outprev;
-                outprev = outtemp;
-                cachefft [cachecur - 1] = outtemp;
-                cachewhat[cachecur - 1] = -1; /* will be destroyed */
-            }
-            if( degrid != 0 )
-            {
-                if( pfactor != 0 )
-                    ApplyPattern3D2_degrid_C( out, outrez, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
-                else
-                    ApplyWiener3D2_degrid_C( out, outrez, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
-                Sharpen_degrid( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, degrid, gridsample, dehalo, wdehalo, ht2n );
-            }
-            else
-            {
-                if( pfactor != 0 )
-                    ApplyPattern3D2( out, outrez, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
-                else
-                    ApplyWiener3D2( out, outrez, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta ); /* get result in outpret */
-                Sharpen( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, dehalo, wdehalo, ht2n );
-            }
-            /* do inverse FFT 3D, get filtered 'in' array
-             * note: input "outrez" array is destroyed by execute algo. */
-            fftwf_execute_dft_c2r( planinv, outrez, in );
+            Wiener3D< 2 >( n, src, frame_ctx, vsapi );
         }
         else if( btcur == 3 ) /* 3D3 */
         {
-            cachecur      = 2;
-            cachestart    = n     - cachecur;
-            cachestartold = nlast - cachecur;
-            SortCache( cachewhat, cachefft, cachesize, cachestart, cachestartold );
-            /* cur frame */
-            out = cachefft[cachecur];
-            if( cachewhat[cachecur] != n )
-            {
-                FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, out );
-                cachewhat[cachecur] = n;
-            }
-            /* prev frame */
-            outprev = cachefft[cachecur - 1];
-            if( cachewhat[cachecur - 1] != n - 1 )
-            {
-                /* calculate prev */
-                const VSFrameRef *prev = vsapi->getFrameFilter( n - 1, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, prev, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( prev );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outprev );
-                cachewhat[cachecur - 1] = n - 1;
-            }
-            if( n != nlast + 1 )
-            {
-                Copyfft( outrez, outprev, outsize ); /* save outprev to outrez to preventits change in cache */
-            }
-            else
-            {
-                /* swap */
-                outtemp = outrez;
-                outrez  = outprev;
-                outprev = outtemp;
-                cachefft [cachecur - 1] = outtemp;
-                cachewhat[cachecur - 1] = -1; /* will be destroyed */
-            }
-            /* calculate next */
-            outnext = cachefft[cachecur + 1];
-            if( cachewhat[cachecur + 1] != n + 1 )
-            {
-                const VSFrameRef *next = vsapi->getFrameFilter( n + 1, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, next, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( next );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outnext );
-                cachewhat[cachecur + 1] = n + 1;
-            }
-            if( degrid != 0 )
-            {
-                if( pfactor != 0 )
-                    ApplyPattern3D3_degrid( out, outrez, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
-                else
-                    ApplyWiener3D3_degrid( out, outrez, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
-                Sharpen_degrid( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, degrid, gridsample, dehalo, wdehalo, ht2n );
-            }
-            else
-            {
-                if( pfactor != 0 )
-                    ApplyPattern3D3( out, outrez, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
-                else
-                    ApplyWiener3D3( out, outrez, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
-                Sharpen( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, dehalo, wdehalo, ht2n );
-            }
-            /* do inverse FFT 2D, get filtered 'in' array
-             * note: input "outrez" array is destroyed by execute algo. */
-            fftwf_execute_dft_c2r( planinv, outrez, in );
+            Wiener3D< 3 >( n, src, frame_ctx, vsapi );
         }
         else if( btcur == 4 ) /* 3D4 */
         {
-            /* cycle prev2, prev, cur and next */
-            cachecur      = 3;
-            cachestart    = n     - cachecur;
-            cachestartold = nlast - cachecur;
-            SortCache( cachewhat, cachefft, cachesize, cachestart, cachestartold );
-            /* cur frame */
-            out = cachefft[cachecur];
-            if( cachewhat[cachecur] != n )
-            {
-                FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, out );
-                cachewhat[cachecur] = n;
-            }
-            /* prev2 frame */
-            outprev2 = cachefft[cachecur - 2];
-            if( cachewhat[cachecur - 2] != n - 2 )
-            {
-                /* calculate prev2 */
-                const VSFrameRef *prev2 = vsapi->getFrameFilter( n - 2, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, prev2, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( prev2 );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outprev2 );
-                cachewhat[cachecur - 2] = n - 2;
-            }
-            if( n != nlast + 1 )
-            {
-                Copyfft( outrez, outprev2, outsize ); /* save outprev2 to outrez to prevent its change in cache */
-            }
-            else
-            {
-                /* swap */
-                outtemp  = outrez;
-                outrez   = outprev2;
-                outprev2 = outtemp;
-                cachefft [cachecur - 2] = outtemp;
-                cachewhat[cachecur - 2] = -1; /* will be destroyed */
-            }
-            /* prev frame */
-            outprev = cachefft[cachecur - 1];
-            if( cachewhat[cachecur - 1] != n - 1 )
-            {
-                const VSFrameRef *prev = vsapi->getFrameFilter( n - 1, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, prev, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( prev );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outprev );
-                cachewhat[cachecur - 1] = n - 1;
-            }
-            /* next frame */
-            outnext = cachefft[cachecur + 1];
-            if( cachewhat[cachecur + 1] != n + 1 )
-            {
-                const VSFrameRef *next = vsapi->getFrameFilter( n + 1, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, next, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( next );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outnext );
-                cachewhat[cachecur + 1] = n + 1;
-            }
-            if( degrid != 0 )
-            {
-                if( pfactor != 0 )
-                    ApplyPattern3D4_degrid( out, outrez, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
-                else
-                    ApplyWiener3D4_degrid( out, outrez, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
-                Sharpen_degrid( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, degrid, gridsample, dehalo, wdehalo, ht2n );
-            }
-            else
-            {
-                if( pfactor != 0 )
-                    ApplyPattern3D4( out, outrez, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
-                else
-                    ApplyWiener3D4( out, outrez, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
-                Sharpen( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, dehalo, wdehalo, ht2n );
-            }
-            /* do inverse FFT 2D, get filtered 'in' array
-             * note: input "outrez" array is destroyed by execute algo. */
-            fftwf_execute_dft_c2r( planinv, outrez, in );
+            Wiener3D< 4 >( n, src, frame_ctx, vsapi );
         }
         else if( btcur == 5 ) /* 3D5 */
         {
-            /* cycle prev2, prev, cur, next and next2 */
-            cachecur      = 3;
-            cachestart    = n     - cachecur;
-            cachestartold = nlast - cachecur;
-            SortCache( cachewhat, cachefft, cachesize, cachestart, cachestartold );
-            /* cur frame */
-            out = cachefft[cachecur];
-            if( cachewhat[cachecur] != n )
-            {
-                FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, out );
-                cachewhat[cachecur] = n;
-            }
-            /* prev2 frame */
-            outprev2 = cachefft[cachecur - 2];
-            if( cachewhat[cachecur - 2] != n - 2 )
-            {
-                /* calculate prev2 */
-                const VSFrameRef *prev2 = vsapi->getFrameFilter( n - 2, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, prev2, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( prev2 );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outprev2 );
-                cachewhat[cachecur - 2] = n - 2;
-            }
-            if( n != nlast + 1 )
-            {
-                Copyfft( outrez, outprev2, outsize ); /* save outprev2 to outrez to prevent its change in cache */
-            }
-            else
-            {
-                /* swap */
-                outtemp  = outrez;
-                outrez   = outprev2;
-                outprev2 = outtemp;
-                cachefft [cachecur - 2] = outtemp;
-                cachewhat[cachecur - 2] = -1; /* will be destroyed */
-            }
-            /* prev frame */
-            outprev = cachefft[cachecur - 1];
-            if( cachewhat[cachecur - 1] != n - 1 )
-            {
-                const VSFrameRef *prev = vsapi->getFrameFilter( n - 1, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, prev, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( prev );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outprev );
-                cachewhat[cachecur - 1] = n - 1;
-            }
-            /* next frame */
-            outnext = cachefft[cachecur + 1];
-            if( cachewhat[cachecur + 1] != n + 1 )
-            {
-                const VSFrameRef *next = vsapi->getFrameFilter( n + 1, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, next, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( next );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outnext );
-                cachewhat[cachecur + 1] = n + 1;
-            }
-            /* next2 frame */
-            outnext2 = cachefft[cachecur + 2];
-            if( cachewhat[cachecur + 2] != n + 2 )
-            {
-                const VSFrameRef *next2 = vsapi->getFrameFilter( n + 2, node, frame_ctx );
-                FramePlaneToCoverbuf( plane, next2, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-                vsapi->freeFrame( next2 );
-
-                FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
-                /* make FFT 2D */
-                fftwf_execute_dft_r2c( plan, in, outnext2 );
-                cachewhat[cachecur + 2] = n + 2;
-            }
-            if( degrid != 0 )
-            {
-                if( pfactor != 0 )
-                    ApplyPattern3D5_degrid_C( out, outrez, outprev, outnext, outnext2, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
-                else
-                    ApplyWiener3D5_degrid_C( out, outrez, outprev, outnext, outnext2, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
-                Sharpen_degrid( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, degrid, gridsample, dehalo, wdehalo, ht2n );
-            }
-            else
-            {
-                if( pfactor != 0 )
-                    ApplyPattern3D5_C( out, outrez, outprev, outnext, outnext2, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
-                else
-                    ApplyWiener3D5_C( out, outrez, outprev, outnext, outnext2, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
-                Sharpen( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, dehalo, wdehalo, ht2n );
-            }
-            /* do inverse FFT 2D, get filtered 'in' array
-             * note: input "outrez" array is destroyed by execute algo. */
-            fftwf_execute_dft_c2r( planinv, outrez, in );
+            Wiener3D< 5 >( n, src, frame_ctx, vsapi );
         }
         /* make destination frame plane from current overlaped blocks */
         FFT3DFilter::DecodeOverlapPlane( in, norm, coverbuf, coverpitch, planeBase );
