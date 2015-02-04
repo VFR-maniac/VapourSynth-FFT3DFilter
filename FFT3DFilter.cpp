@@ -1741,7 +1741,7 @@ FFT3DFilterMulti::FFT3DFilterMulti
     float _sigma2, float _sigma3, float _sigma4, float _degrid,
     float _dehalo, float _hr, float _ht, int _ncpu,
     const VSMap *in, const VSAPI *vsapi
-)
+) : filtered( nullptr ), YClip( nullptr ), UClip( nullptr ), VClip( nullptr )
 {
     node =  vsapi->propGetNode( in, "clip", 0, 0 );
     vi   = *vsapi->getVideoInfo( node );
@@ -1777,11 +1777,7 @@ FFT3DFilterMulti::FFT3DFilterMulti
                                  _sigma2, _sigma3, _sigma4, _degrid, _dehalo, _hr,  _ht, _ncpu, _multiplane,
                                  vi, node );
 
-        if( _multiplane == 3 )
-        {
-            YClip = nullptr;
-        }
-        else
+        if( _multiplane != 3 )
         {
             YClip = new FFT3DFilter( _sigma, _beta, 0, _bw, _bh, _bt, _ow, _oh,
                                      _kratio, _sharpen, _scutoff, _svr, _smin, _smax,
@@ -1790,7 +1786,6 @@ FFT3DFilterMulti::FFT3DFilterMulti
                                      _sigma2, _sigma3, _sigma4, _degrid, _dehalo, _hr, _ht, _ncpu, _multiplane,
                                      vi, node );
         }
-
     }
     else
         throw bad_param{ "plane must be from 0 to 4!" };
@@ -1798,6 +1793,10 @@ FFT3DFilterMulti::FFT3DFilterMulti
 
 FFT3DFilterMulti::~FFT3DFilterMulti()
 {
+    delete filtered;
+    delete YClip;
+    delete UClip;
+    delete VClip;
 }
 
 void FFT3DFilterMulti::RequestFrame
