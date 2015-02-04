@@ -115,89 +115,89 @@ void ApplyPattern3D3_degrid_C( fftwf_complex *out, fftwf_complex *outprev, fftwf
 void ApplyPattern3D4_degrid_C( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float* pattern3d, float beta, float degrid, fftwf_complex *gridsample );
 void ApplyPattern3D5_degrid_C( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, fftwf_complex *outnext2, int outwidth, int outpitch, int bh, int howmanyblocks, float* pattern3d, float beta, float degrid, fftwf_complex *gridsample );
 //-------------------------------------------------------------------------------------------
-void ApplyWiener2D( fftwf_complex *out, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed,
-                    float beta, float sharpen, float sigmaSquaredSharpenMin, float sigmaSquaredSharpenMax, float *wsharpen, float dehalo, float *wdehalo, float ht2n )
+static void ApplyWiener2D( fftwf_complex *out, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed,
+                           float beta, float sharpen, float sigmaSquaredSharpenMin, float sigmaSquaredSharpenMax, float *wsharpen, float dehalo, float *wdehalo, float ht2n )
 {
     ApplyWiener2D_C( out, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, sharpen, sigmaSquaredSharpenMin, sigmaSquaredSharpenMax, wsharpen, dehalo, wdehalo, ht2n );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyWiener3D2( fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
+static void ApplyWiener3D2( fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
 {
     ApplyWiener3D2_C( outcur, outprev, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyPattern3D2( fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta )
+static void ApplyPattern3D2( fftwf_complex *outcur, fftwf_complex *outprev, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta )
 {
     ApplyPattern3D2_C( outcur, outprev, outwidth,  outpitch,  bh,  howmanyblocks, pattern3d, beta );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyWiener3D3( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
+static void ApplyWiener3D3( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
 {
     ApplyWiener3D3_C( out, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyWiener3D3_degrid( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta, float degrid, fftwf_complex *gridsample )
+static void ApplyWiener3D3_degrid( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta, float degrid, fftwf_complex *gridsample )
 {
     ApplyWiener3D3_degrid_C( out, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyWiener3D4_degrid( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta, float degrid, fftwf_complex *gridsample )
+static void ApplyWiener3D4_degrid( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta, float degrid, fftwf_complex *gridsample )
 {
     ApplyWiener3D4_degrid_C( out, outprev2, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyPattern2D( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float pfactor, float *pattern2d0, float beta )
+static void ApplyPattern2D( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float pfactor, float *pattern2d0, float beta )
 {
     ApplyPattern2D_C( outcur, outwidth, outpitch, bh, howmanyblocks, pfactor, pattern2d0, beta );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyPattern3D3( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta )
+static void ApplyPattern3D3( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta )
 {
     ApplyPattern3D3_C( out, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyPattern3D3_degrid( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta, float degrid, fftwf_complex *gridsample )
+static void ApplyPattern3D3_degrid( fftwf_complex *out, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta, float degrid, fftwf_complex *gridsample )
 {
     ApplyPattern3D3_degrid_C( out, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyPattern3D4_degrid( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta, float degrid, fftwf_complex *gridsample )
+static void ApplyPattern3D4_degrid( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float *pattern3d, float beta, float degrid, fftwf_complex *gridsample )
 {
     ApplyPattern3D4_degrid_C( out, outprev2, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyWiener3D4( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
+static void ApplyWiener3D4( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float sigmaSquaredNoiseNormed, float beta )
 {
     ApplyWiener3D4_C( out, outprev2, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyPattern3D4( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float* pattern3d, float beta )
+static void ApplyPattern3D4( fftwf_complex *out, fftwf_complex *outprev2, fftwf_complex *outprev, fftwf_complex *outnext, int outwidth, int outpitch, int bh, int howmanyblocks, float* pattern3d, float beta )
 {
     ApplyPattern3D4_C( out, outprev2, outprev, outnext, outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyKalmanPattern( fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex *covar, fftwf_complex *covarProcess, int outwidth, int outpitch, int bh, int howmanyblocks,  float *covarNoiseNormed, float kratio2 )
+static void ApplyKalmanPattern( fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex *covar, fftwf_complex *covarProcess, int outwidth, int outpitch, int bh, int howmanyblocks,  float *covarNoiseNormed, float kratio2 )
 {
     ApplyKalmanPattern_C( outcur, outLast, covar, covarProcess, outwidth, outpitch, bh, howmanyblocks,  covarNoiseNormed, kratio2 );
 }
 //-------------------------------------------------------------------------------------------
-void ApplyKalman( fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex *covar, fftwf_complex *covarProcess, int outwidth, int outpitch, int bh, int howmanyblocks,  float covarNoiseNormed, float kratio2 )
+static void ApplyKalman( fftwf_complex *outcur, fftwf_complex *outLast, fftwf_complex *covar, fftwf_complex *covarProcess, int outwidth, int outpitch, int bh, int howmanyblocks,  float covarNoiseNormed, float kratio2 )
 {
     ApplyKalman_C( outcur, outLast, covar, covarProcess, outwidth, outpitch, bh, howmanyblocks,  covarNoiseNormed, kratio2 );
 }
 //-------------------------------------------------------------------------------------------
-void Sharpen( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float sharpen, float sigmaSquaredSharpenMin, float sigmaSquaredSharpenMax, float *wsharpen, float dehalo, float *wdehalo, float ht2n )
+static void Sharpen( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float sharpen, float sigmaSquaredSharpenMin, float sigmaSquaredSharpenMax, float *wsharpen, float dehalo, float *wdehalo, float ht2n )
 {
     Sharpen_C( outcur, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMin, sigmaSquaredSharpenMax, wsharpen, dehalo, wdehalo, ht2n );
 }
 //-------------------------------------------------------------------------------------------
-void Sharpen_degrid( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float sharpen, float sigmaSquaredSharpenMin, float sigmaSquaredSharpenMax, float *wsharpen, float degrid, fftwf_complex *gridsample, float dehalo, float *wdehalo, float ht2n )
+static void Sharpen_degrid( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int howmanyblocks, float sharpen, float sigmaSquaredSharpenMin, float sigmaSquaredSharpenMax, float *wsharpen, float degrid, fftwf_complex *gridsample, float dehalo, float *wdehalo, float ht2n )
 {
     Sharpen_degrid_C( outcur, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMin, sigmaSquaredSharpenMax, wsharpen, degrid, gridsample, dehalo, wdehalo, ht2n );
 }
 //-------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------
-void fill_complex( fftwf_complex *plane, int outsize, float realvalue, float imgvalue)
+static void fill_complex( fftwf_complex *plane, int outsize, float realvalue, float imgvalue)
 {
     /* it is not fast, but called only in constructor */
     for( int w = 0; w < outsize; w++ )
@@ -207,7 +207,7 @@ void fill_complex( fftwf_complex *plane, int outsize, float realvalue, float img
     }
 }
 //-------------------------------------------------------------------
-void SigmasToPattern( float sigma, float sigma2, float sigma3, float sigma4, int bh, int outwidth, int outpitch, float norm, float *pattern2d )
+static void SigmasToPattern( float sigma, float sigma2, float sigma3, float sigma4, int bh, int outwidth, int outpitch, float norm, float *pattern2d )
 {
     /* it is not fast, but called only in constructor */
     float sigmacur;
@@ -642,7 +642,7 @@ FFT3DFilter::~FFT3DFilter()
 }
 //-----------------------------------------------------------------------
 //
-void PlanarPlaneToCovebuf( const uint8_t *srcp, int src_width, int src_height, int src_pitch, uint8_t *coverbuf, int coverwidth, int coverheight, int coverpitch, int mirw, int mirh, bool interlaced )
+static void PlanarPlaneToCovebuf( const uint8_t *srcp, int src_width, int src_height, int src_pitch, uint8_t *coverbuf, int coverwidth, int coverheight, int coverpitch, int mirw, int mirh, bool interlaced )
 {
     int h, w;
     int width2 = src_width + src_width + mirw + mirw - 2;
@@ -717,7 +717,7 @@ void PlanarPlaneToCovebuf( const uint8_t *srcp, int src_width, int src_height, i
 }
 //-----------------------------------------------------------------------
 //
-void CoverbufToPlanarPlane( const uint8_t *coverbuf, int coverwidth, int coverheight, int coverpitch, uint8_t *dstp, int dst_width, int dst_height, int dst_pitch, int mirw, int mirh, bool interlaced )
+static void CoverbufToPlanarPlane( const uint8_t *coverbuf, int coverwidth, int coverheight, int coverpitch, uint8_t *dstp, int dst_width, int dst_height, int dst_pitch, int mirw, int mirh, bool interlaced )
 {
     int h;
     const uint8_t *coverbuf1 = coverbuf + coverpitch * mirh + mirw;
@@ -750,7 +750,7 @@ void CoverbufToPlanarPlane( const uint8_t *coverbuf, int coverwidth, int coverhe
 }
 //-----------------------------------------------------------------------
 //
-void FramePlaneToCoverbuf
+static void FramePlaneToCoverbuf
 (
     int               plane,
     const VSFrameRef *src,
@@ -772,7 +772,7 @@ void FramePlaneToCoverbuf
 }
 //-----------------------------------------------------------------------
 //
-void CoverbufToFramePlane
+static void CoverbufToFramePlane
 (
     int            plane,
     const uint8_t *coverbuf,
@@ -1202,7 +1202,7 @@ void FFT3DFilter::DecodeOverlapPlane( const float *inp0, float norm, uint8_t *ds
 }
 
 //-------------------------------------------------------------------------------------------
-void GetAndSubtactMean( float *in, int howmanyblocks, int bw, int bh, int ow, int oh, const float *wxl, const float *wxr, const float *wyl, const float *wyr, float *mean )
+static void GetAndSubtactMean( float *in, int howmanyblocks, int bw, int bh, int ow, int oh, const float *wxl, const float *wxr, const float *wyl, const float *wyr, float *mean )
 {
     int h, w, block;
     float meanblock;
@@ -1283,7 +1283,7 @@ void GetAndSubtactMean( float *in, int howmanyblocks, int bw, int bh, int ow, in
     }
 }
 //-------------------------------------------------------------------------------------------
-void RestoreMean( float *in, int howmanyblocks, int bw, int bh, float *mean )
+static void RestoreMean( float *in, int howmanyblocks, int bw, int bh, float *mean )
 {
     int h, w, block;
     float meanblock;
@@ -1303,7 +1303,7 @@ void RestoreMean( float *in, int howmanyblocks, int bw, int bh, float *mean )
         }
 }
 //-------------------------------------------------------------------------------------------
-void ShowIn( const float *in0, int nox, int noy, int bw, int bh, uint8_t *srcp0, int src_width, int src_height, int src_pitch )
+static void ShowIn( const float *in0, int nox, int noy, int bw, int bh, uint8_t *srcp0, int src_width, int src_height, int src_pitch )
 {
     const float *in;
     uint8_t *srcp;
@@ -1331,7 +1331,7 @@ void ShowIn( const float *in0, int nox, int noy, int bw, int bh, uint8_t *srcp0,
     }
 }
 //-------------------------------------------------------------------------------------------
-void FindPatternBlock( const fftwf_complex *outcur0, int outwidth, int outpitch, int bh, int nox, int noy, int &px, int &py, const float *pwin, float degrid, const fftwf_complex *gridsample )
+static void FindPatternBlock( const fftwf_complex *outcur0, int outwidth, int outpitch, int bh, int nox, int noy, int &px, int &py, const float *pwin, float degrid, const fftwf_complex *gridsample )
 {
     /* since v1.7 outwidth must be really an outpitch */
     int h;
@@ -1374,7 +1374,7 @@ void FindPatternBlock( const fftwf_complex *outcur0, int outwidth, int outpitch,
     }
 }
 //-------------------------------------------------------------------------------------------
-void SetPattern( const fftwf_complex *outcur, int outwidth, int outpitch, int bh, int nox, int noy, int px, int py, const float *pwin, float *pattern2d, float &psigma, float degrid, const fftwf_complex *gridsample )
+static void SetPattern( const fftwf_complex *outcur, int outwidth, int outpitch, int bh, int nox, int noy, int px, int py, const float *pwin, float *pattern2d, float &psigma, float degrid, const fftwf_complex *gridsample )
 {
     int h;
     int w;
@@ -1415,7 +1415,7 @@ void SetPattern( const fftwf_complex *outcur, int outwidth, int outpitch, int bh
     psigma = sqrt( sigmaSquared / (weight * bh * outwidth) ); /* mean std deviation (sigma) */
 }
 //-------------------------------------------------------------------------------------------
-void PutPatternOnly( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int nox, int noy, int px, int py )
+static void PutPatternOnly( fftwf_complex *outcur, int outwidth, int outpitch, int bh, int nox, int noy, int px, int py )
 {
     int h,w;
     int block;
@@ -1451,7 +1451,7 @@ void PutPatternOnly( fftwf_complex *outcur, int outwidth, int outpitch, int bh, 
     }
 }
 //-------------------------------------------------------------------------------------------
-void Pattern2Dto3D( const float *pattern2d, int bh, int outwidth, int outpitch, float mult, float *pattern3d )
+static void Pattern2Dto3D( const float *pattern2d, int bh, int outwidth, int outpitch, float mult, float *pattern3d )
 {
     /* slow, but executed once only per clip */
     int size = bh * outpitch;
@@ -1461,7 +1461,7 @@ void Pattern2Dto3D( const float *pattern2d, int bh, int outwidth, int outpitch, 
     }
 }
 //-------------------------------------------------------------------------------------------
-void Copyfft( fftwf_complex *outrez, const fftwf_complex *outprev, int outsize )
+static void Copyfft( fftwf_complex *outrez, const fftwf_complex *outprev, int outsize )
 { /* save outprev to outrez to prevent cache change (inverse fft2d will destroy the array) */
 #if 0
     for( int i = 0; i < outsize; i++ )
@@ -1477,7 +1477,7 @@ void Copyfft( fftwf_complex *outrez, const fftwf_complex *outprev, int outsize )
 #endif
 }
 //-------------------------------------------------------------------------------------------
-void SortCache( int *cachewhat, fftwf_complex **cachefft, int cachesize, int cachestart, int cachestartold )
+static void SortCache( int *cachewhat, fftwf_complex **cachefft, int cachesize, int cachestart, int cachestartold )
 {
     /* sort ordered series, put existant ffts to proper places */
     int i;
@@ -1519,7 +1519,7 @@ void SortCache( int *cachewhat, fftwf_complex **cachefft, int cachesize, int cac
 }
 //-------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
-void CopyFrame
+static void CopyFrame
 (
     const VSFrameRef *src,
     VSFrameRef       *dst,
