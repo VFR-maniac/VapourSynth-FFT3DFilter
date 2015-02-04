@@ -1601,9 +1601,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *prev = vsapi->getFrameFilter( n - 1, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, prev, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( prev );
-            }
-            if( cachewhat[cachecur - 1] != n - 1 )
-            {
+
                 /* calculate prev */
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
@@ -1667,9 +1665,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *prev = vsapi->getFrameFilter( n - 1, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, prev, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( prev );
-            }
-            if( cachewhat[cachecur - 1] != n - 1 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outprev );
@@ -1695,9 +1691,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *next = vsapi->getFrameFilter( n + 1, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, next, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( next );
-            }
-            if( cachewhat[cachecur + 1] != n + 1 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outnext );
@@ -1748,9 +1742,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *prev2 = vsapi->getFrameFilter( n - 2, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, prev2, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( prev2 );
-            }
-            if( cachewhat[cachecur - 2] != n - 2 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outprev2 );
@@ -1776,9 +1768,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *prev = vsapi->getFrameFilter( n - 1, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, prev, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( prev );
-            }
-            if( cachewhat[cachecur - 1] != n - 1 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outprev );
@@ -1791,9 +1781,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *next = vsapi->getFrameFilter( n + 1, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, next, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( next );
-            }
-            if( cachewhat[cachecur + 1] != n + 1 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outnext );
@@ -1844,9 +1832,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *prev2 = vsapi->getFrameFilter( n - 2, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, prev2, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( prev2 );
-            }
-            if( cachewhat[cachecur - 2] != n - 2 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outprev2 );
@@ -1872,9 +1858,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *prev = vsapi->getFrameFilter( n - 1, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, prev, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( prev );
-            }
-            if( cachewhat[cachecur - 1] != n - 1 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outprev );
@@ -1887,9 +1871,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *next = vsapi->getFrameFilter( n + 1, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, next, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( next );
-            }
-            if( cachewhat[cachecur + 1] != n + 1 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outnext );
@@ -1902,9 +1884,7 @@ VSFrameRef * FFT3DFilter::GetFrame
                 const VSFrameRef *next2 = vsapi->getFrameFilter( n + 2, node, frame_ctx );
                 FramePlaneToCoverbuf( plane, next2, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
                 vsapi->freeFrame( next2 );
-            }
-            if( cachewhat[cachecur + 2] != n + 2 )
-            {
+
                 FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
                 /* make FFT 2D */
                 fftwf_execute_dft_r2c( plan, in, outnext2 );
