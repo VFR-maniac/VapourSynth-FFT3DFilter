@@ -78,6 +78,7 @@
  *
  * For VapourSynth
  *    February 2, 2015 - imported for VapourSynth without SIMD optimizations.
+ *    February 4, 2015 - stopped using explicit linking to FFTW3 library.
  *****************************************************************************/
 
 #include <cstring>
@@ -317,31 +318,9 @@ FFT3DFilter::FFT3DFilter
     if( beta < 1 )
         throw bad_param{ "beta must be not less 1.0" };
 
-    int istat = 0;
-
-    hinstLib = DLOPEN( "libfftw3f-3.dll" ); /* added in v 0.8.4 for delayed loading */
-    if( hinstLib != nullptr )
-    {
-#define GET_SYMBOL( name )                              \
-        name = (name##_proc)DLSYM( hinstLib, #name ); \
-        if( name == nullptr ) throw bad_open{ "Symbol '" #name "' is not found!" }
-        GET_SYMBOL( fftwf_free );
-        GET_SYMBOL( fftwf_malloc );
-        GET_SYMBOL( fftwf_plan_many_dft_r2c );
-        GET_SYMBOL( fftwf_plan_many_dft_c2r );
-        GET_SYMBOL( fftwf_destroy_plan );
-        GET_SYMBOL( fftwf_execute_dft_r2c );
-        GET_SYMBOL( fftwf_execute_dft_c2r );
-        GET_SYMBOL( fftwf_init_threads );
-        GET_SYMBOL( fftwf_plan_with_nthreads );
-#undef GET_SYMBOL
-
-        istat = fftwf_init_threads();
-        if( istat == 0 )
-            throw bad_open{ "fftwf_init_threads() failed!" };
-    }
-    else
-        throw bad_open{ "Can not load libfftw3f-3.dll !" };
+    int istat = fftwf_init_threads();
+    if( istat == 0 )
+        throw bad_open{ "fftwf_init_threads() failed!" };
 
     coverwidth  = nox * ( bw - ow ) + ow;
     coverheight = noy * ( bh - oh ) + oh;
@@ -659,8 +638,6 @@ FFT3DFilter::~FFT3DFilter()
     fftwf_free( cachefft );
     fftwf_free( gridsample ); /* fixed memory leakage in v1.8.5 */
 
-    if( hinstLib != nullptr )
-        DLCLOSE( hinstLib );
     free( messagebuf ); /* v1.8.5 */
 }
 //-----------------------------------------------------------------------

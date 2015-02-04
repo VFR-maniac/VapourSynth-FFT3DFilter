@@ -87,7 +87,7 @@ libdir=""
 
 CXXFLAGS="-Wall -std=c++11 -I. -I$SRCDIR"
 LDFLAGS="-L."
-DEPLIBS=""
+DEPLIBS="libfftw3f"
 
 SRC_SOURCE="fft3dfilter_c.cpp FFT3DFilter.cpp Plugin.cpp"
 
@@ -160,6 +160,7 @@ case "$TARGET_OS" in
         SOFLAGS="-Wl,-soname,$SONAME"
         CXXFLAGS="$CXXFLAGS -fPIC"
         LDFLAGS="-fPIC $LDFLAGS"
+        DEPLIBS="libfftw3f_threads $DEPLIBS libm"
         ;;
 esac
 
@@ -207,6 +208,13 @@ else
         LIBS="$LIBS -l${lib#lib}"
     done
     log_echo "warning: pkg-config or pc files not found, lib detection may be inaccurate."
+fi
+
+# -- check fftw3f ------------------------------------------------------------------------------
+log_echo "checking for fftw3f..."
+if ! cc_check "$CXXFLAGS" "$LDFLAGS $LIBS $XLIBS" "fftw3.h" "fftwf_init_threads();" ; then
+    log_echo "error: fftw3f checking failed."
+    error_exit "fftw3.h might not be installed or some libs missing."
 fi
 
 # -- LDFLAGS settings --------------------------------------------------------------------------

@@ -22,21 +22,9 @@
 
 #include <string>
 
-#ifdef __MINGW32__
-    #include "windows.h"
-    #define DLOPEN( filename )      LoadLibrary( filename )
-    #define DLSYM( handle, symbol ) GetProcAddress( handle, symbol )
-    #define DLCLOSE( handle )       FreeLibrary( handle )
-#else
-    #include <dlfcn.h>
-    #define DLOPEN( filename )      dlopen( filename, RTLD_LAZY )
-    #define DLSYM( handle, symbol ) dlsym( handle, symbol )
-    #define DLCLOSE( handle )       dlclose( handle )
-    using HINSTANCE = void *;
-#endif
+#include <fftw3.h>
 
 #include "VapourSynth.h"
-#include "fftwlite.h" /* added in v.0.8.4 */
 
 class CustomException
 {
@@ -146,18 +134,6 @@ private:
     bool  isPatternSet;
     float psigma;
     char *messagebuf;
-
-    /* added in v.0.9 for delayed FFTW3.DLL loading */
-    HINSTANCE hinstLib;
-    fftwf_malloc_proc             fftwf_malloc;
-    fftwf_free_proc               fftwf_free;
-    fftwf_plan_many_dft_r2c_proc  fftwf_plan_many_dft_r2c;
-    fftwf_plan_many_dft_c2r_proc  fftwf_plan_many_dft_c2r;
-    fftwf_destroy_plan_proc       fftwf_destroy_plan;
-    fftwf_execute_dft_r2c_proc    fftwf_execute_dft_r2c;
-    fftwf_execute_dft_c2r_proc    fftwf_execute_dft_c2r;
-    fftwf_init_threads_proc       fftwf_init_threads;
-    fftwf_plan_with_nthreads_proc fftwf_plan_with_nthreads;
 
     fftwf_complex ** cachefft;  /* v1.8 */
     int            * cachewhat; /* v1.8 */
