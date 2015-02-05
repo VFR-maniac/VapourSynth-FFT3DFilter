@@ -1398,24 +1398,6 @@ static void CopyFrame
 }
 //-------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------
-
-VSFrameRef *FFT3DFilter::newVideoFrame
-(
-    const VSFrameRef *src,
-    VSCore           *core,
-    const VSAPI      *vsapi
-)
-{
-    VSFrameRef *dst = vsapi->newVideoFrame
-    (
-        vsapi->getFrameFormat( src ),
-        vsapi->getFrameWidth ( src, 0 ),
-        vsapi->getFrameHeight( src, 0 ),
-        src, core
-    );
-    return dst;
-}
-
 template < int btcur >
 void FFT3DFilter::Wiener3D
 (
@@ -1490,12 +1472,14 @@ void FFT3DFilter::Wiener3D
     fftwf_execute_dft_c2r( planinv, outrez, in );
 }
 
-VSFrameRef * FFT3DFilter::GetFrame
+void FFT3DFilter::ApplyFilter
 (
-    int             n,
-    VSFrameContext *frame_ctx,
-    VSCore         *core,
-    const VSAPI    *vsapi
+    int               n,
+    VSFrameRef       *dst,
+    const VSFrameRef *src,
+    VSFrameContext   *frame_ctx,
+    VSCore           *core,
+    const VSAPI      *vsapi
 )
 {
     //_asm emms;
@@ -1504,10 +1488,6 @@ VSFrameRef * FFT3DFilter::GetFrame
         planeBase = 0;
     else
         planeBase = 128; /* neutral chroma value */
-
-    /* Request frame 'n' from the source clip. */
-    const VSFrameRef *src = vsapi->getFrameFilter( n, node, frame_ctx );
-    VSFrameRef *dst = newVideoFrame( src, core, vsapi );
 
     if( pfactor != 0 && isPatternSet == false && pshow == false ) /* get noise pattern */
     {
@@ -1525,10 +1505,7 @@ VSFrameRef * FFT3DFilter::GetFrame
         isPatternSet = true;
     }
     else if( pfactor != 0 && pshow == true )
-    {
-        /* show noise pattern window */
-        CopyFrame( src, dst, vi, plane, vsapi );
-
+    {   /* show noise pattern window */
         /* put source bytes to float array of overlapped blocks */
         FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
         FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
@@ -1560,7 +1537,6 @@ VSFrameRef * FFT3DFilter::GetFrame
         /* put source bytes to float array of overlapped blocks */
         /* cur frame */
         FramePlaneToCoverbuf( plane, src, coverbuf, coverwidth, coverheight, coverpitch, mirw, mirh, interlaced, vsapi );
-        vsapi->freeFrame( src );
         FFT3DFilter::InitOverlapPlane( in, coverbuf, coverpitch, planeBase );
         /* make FFT 2D */
         fftwf_execute_dft_r2c( plan, in, outrez );
@@ -1577,12 +1553,7 @@ VSFrameRef * FFT3DFilter::GetFrame
         sprintf( messagebuf," frame=%d, px=%d, py=%d, sigma=%d.%d", n, pxf, pyf, psigmaint, psigmadec );
         DrawString( dst, 0, 0, messagebuf, vsapi );
 
-        return dst; /* return pattern frame to show */
-    }
-
-    if( multiplane < 3 || (multiplane == 3 && plane == 1) ) /* v1.8.4 */
-    {
-        CopyFrame( src, dst, vi, plane, vsapi );
+        return;
     }
 
     int btcur = bt; /* bt used for current frame */
@@ -1591,7 +1562,6 @@ VSFrameRef * FFT3DFilter::GetFrame
     {
         btcur = 1; /* do 2D filter for first and last frames */
     }
-        // return src /* first frame was not processed prior v.0.7 */
 
     if( btcur > 0 ) /* Wiener */
     {
@@ -1661,9 +1631,7 @@ VSFrameRef * FFT3DFilter::GetFrame
         /* get power spectral density (abs quadrat) for every block and apply filter */
 
         if( n == 0 )
-        {
-            return const_cast<VSFrameRef *>(src);
-        }
+            return;
 
         /* put source bytes to float array of overlapped blocks */
         /* cur frame */
@@ -1716,9 +1684,7 @@ VSFrameRef * FFT3DFilter::GetFrame
     }
     btcurlast = btcur;
 
-    /* As we now are finished processing the image, we return the destination image. */
-    vsapi->freeFrame( src );
-    return dst;
+    /* As we now are finished processing the image. */
 }
 
 //-------------------------------------------------------------------
@@ -1820,13 +1786,11 @@ void FFT3DFilterMulti::RequestFrame
 
 VSFrameRef *FFT3DFilterMulti::newVideoFrame
 (
-    int             n,
-    VSFrameContext *frame_ctx,
-    VSCore         *core,
-    const VSAPI    *vsapi
+    const VSFrameRef *src,
+    VSCore           *core,
+    const VSAPI      *vsapi
 )
 {
-    const VSFrameRef *src = vsapi->getFrameFilter( n, node, frame_ctx );
     VSFrameRef *dst = vsapi->newVideoFrame
     (
         vsapi->getFrameFormat( src ),
@@ -1834,7 +1798,6 @@ VSFrameRef *FFT3DFilterMulti::newVideoFrame
         vsapi->getFrameHeight( src, 0 ),
         src, core
     );
-    vsapi->freeFrame( src );
     return dst;
 }
 
@@ -1846,28 +1809,39 @@ VSFrameRef *FFT3DFilterMulti::GetFrame
     const VSAPI    *vsapi
 )
 {
+    /* Request frame 'n' from the source clip. */
+    const VSFrameRef *src = vsapi->getFrameFilter( n, node, frame_ctx );
+
     VSFrameRef *dst;
+    if( pfactor != 0 && pshow == true )
+        dst = vsapi->copyFrame( src, core );
+    else if( bt == 0 && n == 0 )
+        /* Kalman filter does nothing for the first frame. */
+        dst = const_cast<VSFrameRef *>(vsapi->cloneFrameRef( src ));
+    else
+    {
+        dst = newVideoFrame( src, core, vsapi );
+        if( multiplane < 3 )
+            CopyFrame( src, dst, vi, multiplane, vsapi );
+    }
+
     if( multiplane < 3 )
     {
-        dst = filtered->GetFrame( n, frame_ctx, core, vsapi );
+        filtered->ApplyFilter( n, dst, src, frame_ctx, core, vsapi );
         isPatternSet = filtered->getIsPatternSet();
     }
     else
     {
-        dst = newVideoFrame( n, frame_ctx, core, vsapi );
-        const VSFrameRef *fY = YClip != nullptr ? YClip->GetFrame( n, frame_ctx, core, vsapi ) : vsapi->getFrameFilter( n, node, frame_ctx );
-        const VSFrameRef *fU = UClip->GetFrame( n, frame_ctx, core, vsapi );
-        const VSFrameRef *fV = VClip->GetFrame( n, frame_ctx, core, vsapi );
-        BitBlt( vsapi->getWritePtr( dst, 0 ), vsapi->getStride( dst, 0 ), vsapi->getReadPtr( fY, 0 ),
-                vsapi->getStride( fY, 0 ), vsapi->getFrameWidth( fY, 0 ), vsapi->getFrameHeight( fY, 0 ) );
-        BitBlt( vsapi->getWritePtr( dst, 1 ), vsapi->getStride( dst, 1 ), vsapi->getReadPtr( fU, 1 ),
-                vsapi->getStride( fU, 1 ), vsapi->getFrameWidth( fU, 1 ), vsapi->getFrameHeight( fU, 1 ) );
-        BitBlt( vsapi->getWritePtr( dst, 2 ), vsapi->getStride( dst, 2 ), vsapi->getReadPtr( fV, 2 ),
-                vsapi->getStride( fV, 2 ), vsapi->getFrameWidth( fV, 2 ), vsapi->getFrameHeight( fV, 2 ) );
+        if( YClip != nullptr )
+            YClip->ApplyFilter( n, dst, src, frame_ctx, core, vsapi );
+        else
+            BitBlt( vsapi->getWritePtr( dst, 0 ), vsapi->getStride( dst, 0 ), vsapi->getReadPtr( src, 0 ),
+                    vsapi->getStride( src, 0 ), vsapi->getFrameWidth( src, 0 ), vsapi->getFrameHeight( src, 0 ) );
+        UClip->ApplyFilter( n, dst, src, frame_ctx, core, vsapi );
+        VClip->ApplyFilter( n, dst, src, frame_ctx, core, vsapi );
         isPatternSet = UClip->getIsPatternSet();
-        vsapi->freeFrame( fY );
-        vsapi->freeFrame( fU );
-        vsapi->freeFrame( fV );
     }
+
+    vsapi->freeFrame( src );
     return dst;
 }

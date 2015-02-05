@@ -142,8 +142,6 @@ private:
     void InitOverlapPlane( float * inp, const uint8_t *srcp, int src_pitch, int planeBase );
     void DecodeOverlapPlane( const float *in, float norm, uint8_t *dstp, int dst_pitch, int planeBase );
 
-    VSFrameRef *newVideoFrame( const VSFrameRef *src, VSCore *core, const VSAPI *vsapi );
-
     template < int btcur > void Wiener3D( int n, const VSFrameRef *src, VSFrameContext *frame_ctx, const VSAPI *vsapi );
 
 public:
@@ -154,7 +152,7 @@ public:
     using bad_open  = class bad_open  : public CustomException { using CustomException::CustomException; };
     using bad_plan  = class bad_plan  : public CustomException { using CustomException::CustomException; };
 
-    VSFrameRef *GetFrame( int n, VSFrameContext *frame_ctx, VSCore *core, const VSAPI *vsapi );
+    void ApplyFilter( int n, VSFrameRef *dst, const VSFrameRef *src, VSFrameContext *frame_ctx, VSCore *core, const VSAPI *vsapi );
 
     inline bool getIsPatternSet() { return isPatternSet; }
 
@@ -185,7 +183,7 @@ class FFT3DFilterMulti
     float pfactor;  /* noise pattern denoise strength */
     bool  isPatternSet;
 
-    VSFrameRef *newVideoFrame( int n, VSFrameContext *frame_ctx, VSCore *core, const VSAPI *vsapi );
+    VSFrameRef *newVideoFrame( const VSFrameRef *src, VSCore *core, const VSAPI *vsapi );
 
 public:
     VSVideoInfo vi;
