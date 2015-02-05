@@ -1451,20 +1451,24 @@ void FFT3DFilter::Wiener3D
             }
         }
     }
+
+    fftwf_complex *outp[5] = { out[-2], out[-1], out[0], out[1], out[2] };
+    outp[2 - btcur / 2] = outrez;
+
     if( degrid != 0 )
     {
         if( pfactor != 0 )
-            ApplyPattern3D_degrid< btcur >( out[0], outrez, out[-1], out[1], out[2], outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
+            ApplyPattern3D_degrid< btcur >( outp[2], outp[0], outp[1], outp[3], outp[4], outwidth, outpitch, bh, howmanyblocks, pattern3d, beta, degrid, gridsample );
         else
-            ApplyWiener3D_degrid< btcur >( out[0], outrez, out[-1], out[1], out[2], outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
+            ApplyWiener3D_degrid< btcur >( outp[2], outp[0], outp[1], outp[3], outp[4], outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta, degrid, gridsample );
         Sharpen_degrid( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, degrid, gridsample, dehalo, wdehalo, ht2n );
     }
     else
     {
         if( pfactor != 0 )
-            ApplyPattern3D< btcur >( out[0], outrez, out[-1], out[1], out[2], outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
+            ApplyPattern3D< btcur >( outp[2], outp[0], outp[1], outp[3], outp[4], outwidth, outpitch, bh, howmanyblocks, pattern3d, beta );
         else
-            ApplyWiener3D< btcur >( out[0], outrez, out[-1], out[1], out[2], outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
+            ApplyWiener3D< btcur >( outp[2], outp[0], outp[1], outp[3], outp[4], outwidth, outpitch, bh, howmanyblocks, sigmaSquaredNoiseNormed, beta );
         Sharpen( outrez, outwidth, outpitch, bh, howmanyblocks, sharpen, sigmaSquaredSharpenMinNormed, sigmaSquaredSharpenMaxNormed, wsharpen, dehalo, wdehalo, ht2n );
     }
     /* do inverse FFT 2D, get filtered 'in' array
