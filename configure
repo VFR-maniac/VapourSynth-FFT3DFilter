@@ -15,13 +15,14 @@ options:
   --libdir=DIR               set dir for libs    [NONE]
   --includedir=DIR           set dir for headers [NONE]
 
-  --extra-cxxflags=XCXXFLAGS add XCXXFLAGS to CXXFLAGS
-  --extra-ldflags=XLDFLAGS   add XLDFLAGS to LDFLAGS
-  --extra-libs=XLIBS         add XLIBS to LIBS
-
   --target-os=TARGET_OS      select target operating system
   --cross-prefix=PREFIX      use PREFIX for compilation tools
   --sysroot=SYSROOT          root of cross-build tree
+  --enable-debug             compile with debug symbols and never strip
+
+  --extra-cxxflags=XCXXFLAGS add XCXXFLAGS to CXXFLAGS
+  --extra-ldflags=XLDFLAGS   add XLDFLAGS to LDFLAGS
+  --extra-libs=XLIBS         add XLIBS to LIBS
 
 EOF
 exit 1
@@ -80,6 +81,7 @@ EOF
 CXX="g++"
 LD="g++"
 STRIP="strip"
+DEBUG=""
 
 prefix=""
 includedir=""
@@ -106,6 +108,9 @@ for opt; do
             ;;
         --includedir=*)
             includedir="$optarg"
+            ;;
+        --enable-debug)
+            DEBUG="enabled"
             ;;
         --extra-cxxflags=*)
             XCXXFLAGS="$optarg"
@@ -184,16 +189,22 @@ for f in "$CXX" "$LD" "$STRIP"; do
 done
 
 # -- check & set cxxflags and ldflags  ----------------------------------------------------------
+if test -n "$DEBUG"; then
+    CXXFLAGS="$CXXFLAGS -g3 -O0"
+    STRIP=""
+else
+    CXXFLAGS="-O3 -ffast-math -fomit-frame-pointer -fno-tree-vectorize $CXXFLAGS"
+fi
+
 log_echo "CXXFLAGS/LDFLAGS checking..."
 if ! cc_check "$CXXFLAGS" "$LDFLAGS"; then
     error_exit "invalid CXXFLAGS/LDFLAGS"
 fi
-if cc_check "-Os -ffast-math $CXXFLAGS" "$LDFLAGS"; then
-    CXXFLAGS="-Os -ffast-math $CXXFLAGS"
-fi
+
 if cc_check "$CXXFLAGS -fexcess-precision=fast" "$LDFLAGS"; then
     CXXFLAGS="$CXXFLAGS -fexcess-precision=fast"
 fi
+
 if cc_check "-msse2 -mfpmath=sse $CXXFLAGS" "$LDFLAGS"; then
     CXXFLAGS="-msse2 -mfpmath=sse $CXXFLAGS"
 fi
