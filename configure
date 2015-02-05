@@ -194,6 +194,9 @@ fi
 if cc_check "$CXXFLAGS -fexcess-precision=fast" "$LDFLAGS"; then
     CXXFLAGS="$CXXFLAGS -fexcess-precision=fast"
 fi
+if cc_check "-msse2 -mfpmath=sse $CXXFLAGS" "$LDFLAGS"; then
+    CXXFLAGS="-msse2 -mfpmath=sse $CXXFLAGS"
+fi
 
 # -- check pkg-config ----------------------------------------------------------------
 PKGCONFIGEXE="pkg-config"
