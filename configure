@@ -11,9 +11,13 @@ Usage: [PKG_CONFIG_PATH=/foo/bar/lib/pkgconfig] ./configure [options]
 options:
   -h, --help                 print help (this)
 
-  --prefix=PREFIX            set dir for headers and libs [NONE]
-  --libdir=DIR               set dir for libs    [NONE]
-  --includedir=DIR           set dir for headers [NONE]
+  --prefix=PREFIX            install architecture-independent files into PREFIX
+                             [/usr/local]
+  --exec-prefix=EPREFIX      install architecture-dependent files into EPREFIX
+                             [PREFIX]
+  --libdir=DIR               install libs in DIR [EPREFIX/lib]
+  --vs-plugindir=DIR         location of VapourSynth plugin directory,
+                                default is [libdir]/vapoursynth
 
   --target-os=TARGET_OS      select target operating system
   --cross-prefix=PREFIX      use PREFIX for compilation tools
@@ -84,8 +88,10 @@ STRIP="strip"
 DEBUG=""
 
 prefix=""
-includedir=""
+exec_prefix=""
 libdir=""
+vsplugindir=""
+DESTDIR=""
 
 CXXFLAGS="-Wall -std=c++11 -I. -I$SRCDIR"
 LDFLAGS="-L."
@@ -103,11 +109,17 @@ for opt; do
         --prefix=*)
             prefix="$optarg"
             ;;
+        --exec-prefix=*)
+            exec_prefix="$optarg"
+            ;;
         --libdir=*)
             libdir="$optarg"
             ;;
-        --includedir=*)
-            includedir="$optarg"
+        --vs-plugindir=*)
+            vsplugindir="$optarg"
+            ;;
+        --destdir=*)
+            DESTDIR="$optarg"
             ;;
         --enable-debug)
             DEBUG="enabled"
@@ -136,6 +148,11 @@ for opt; do
             ;;
     esac
 done
+
+test -n "$prefix" || prefix="/usr/local"
+test -n "$exec_prefix" || exec_prefix='${prefix}'
+test -n "$libdir" || libdir='${exec_prefix}/lib'
+test -n "$vsplugindir" || vsplugindir='${libdir}/vapoursynth'
 
 BASENAME="vsfft3dfilter"
 
@@ -174,7 +191,6 @@ if test -n "$prefix"; then
     CXXFLAGS="$CXXFLAGS -I$prefix/include"
     LDFLAGS="$LDFLAGS -L$prefix/lib"
 fi
-test -n "$includedir" && CXXFLAGS="$CXXFLAGS -I$includedir"
 test -n "$libdir" && LDFLAGS="$LDFLAGS -L$libdir"
 
 CXXFLAGS="$CXXFLAGS $XCXXFLAGS"
@@ -250,6 +266,11 @@ CXXFLAGS = $CXXFLAGS
 LDFLAGS = $LDFLAGS
 LIBS = $LIBS
 SRCDIR = $SRCDIR
+DESTDIR = $DESTDIR
+prefix = $prefix
+exec_prefix = $exec_prefix
+libdir = $libdir
+vsplugindir = $vsplugindir
 SRC_SOURCE = $SRC_SOURCE
 BASENAME=$BASENAME
 SONAME=$SONAME
@@ -276,6 +297,8 @@ LDFLAGS     = $LDFLAGS
 LIBS        = $LIBS
 SONAME      = $SONAME
 SOFLAGS     = $SOFLAGS
+PREFIX      = $prefix
+VSPLUGINDIR = $vsplugindir
 EOF
 
 test "$SRCDIR" = "." || cp -f $SRCDIR/GNUmakefile .
