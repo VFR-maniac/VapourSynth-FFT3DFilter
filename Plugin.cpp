@@ -245,7 +245,7 @@ VS_EXTERNAL_API( void ) VapourSynthPluginInit
     config_func
     (
         "systems.innocent.fft3dfilter", "fft3dfilter",
-        "FFT3DFilter" VSFFT3DFILTER_REV,
+        "FFT3DFilter rev" VSFFT3DFILTER_REV "-" VSFFT3DFILTER_GIT_HASH,
         VAPOURSYNTH_API_VERSION, 1, plugin
     );
     register_func
